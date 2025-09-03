@@ -1,61 +1,168 @@
-<div class="container py-5">
-  <h2 class="mb-4 text-center">Bëj Rezervimin Tënd</h2>
 
-  <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="row g-3">
-
-    <!-- Data -->
-    <div class="col-md-6">
-      <label for="date" class="form-label">Data</label>
-      <input type="date" id="date" class="form-control" formControlName="date">
-      <div *ngIf="hasError('date','required')" class="text-danger small">Data është e detyrueshme</div>
+<div class="reservation-container">
+  <div class="reservation-card">
+    <div class="header-section">
+      <h2 class="title">Bëj Rezervimin Tënd</h2>
+      <p class="subtitle">Rezervoni tryezën tuaj për një përvojë të paharrueshme</p>
     </div>
 
-    <!-- Ora -->
-    <div class="col-md-6">
-      <label for="time" class="form-label">Ora</label>
-      <input type="time" id="time" class="form-control" formControlName="time">
-      <div *ngIf="hasError('time','required')" class="text-danger small">Ora është e detyrueshme</div>
-    </div>
+    <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="reservation-form">
 
-    <!-- Numri i personave -->
-    <div class="col-md-6">
-      <label for="guests" class="form-label">Nr. Personave</label>
-      <input type="number" id="guests" class="form-control" formControlName="guests" min="1">
-      <div *ngIf="hasError('guests','required')" class="text-danger small">Numri i personave është i detyrueshëm</div>
-      <div *ngIf="hasError('guests','min')" class="text-danger small">Duhet të jetë minimumi 1</div>
-    </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="date" class="form-label">
+            <i class="icon">📅</i>
+            Data
+          </label>
+          <input
+            type="date"
+            id="date"
+            class="form-control"
+            [class.error]="hasError('date','required')"
+            formControlName="date">
+          <div *ngIf="hasError('date','required')" class="error-message">
+            Data është e detyrueshme
+          </div>
+        </div>
 
-    <!-- Emri + Mbiemri -->
-    <div class="col-md-6">
-      <label for="fullName" class="form-label">Emër + Mbiemër</label>
-      <input type="text" id="fullName" class="form-control" formControlName="fullName">
-      <div *ngIf="hasError('fullName','required')" class="text-danger small">Emri është i detyrueshëm</div>
-    </div>
+        <div class="form-group">
+          <label for="time" class="form-label">
+            <i class="icon">🕒</i>
+            Ora
+          </label>
+          <input
+            type="time"
+            id="time"
+            class="form-control"
+            [class.error]="hasError('time','required')"
+            formControlName="time">
+          <div *ngIf="hasError('time','required')" class="error-message">
+            Ora është e detyrueshme
+          </div>
+        </div>
+      </div>
 
-    <!-- Email -->
-    <div class="col-md-6">
-      <label for="email" class="form-label">Email</label>
-      <input type="email" id="email" class="form-control" formControlName="email">
-      <div *ngIf="hasError('email','required')" class="text-danger small">Email është i detyrueshëm</div>
-      <div *ngIf="hasError('email','email')" class="text-danger small">Email nuk është valid</div>
-    </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="guests" class="form-label">
+            <i class="icon">👥</i>
+            Nr. Personave
+          </label>
+          <input
+            type="number"
+            id="guests"
+            class="form-control"
+            [class.error]="hasError('guests','required') || hasError('guests','min')"
+            formControlName="guests"
+            min="1">
+          <div *ngIf="hasError('guests','required')" class="error-message">
+            Numri i personave është i detyrueshëm
+          </div>
+          <div *ngIf="hasError('guests','min')" class="error-message">
+            Duhet të jetë minimumi 1
+          </div>
+        </div>
 
-    <!-- Telefon -->
-    <div class="col-md-6">
-      <label for="phone" class="form-label">Telefon</label>
-      <input type="tel" id="phone" class="form-control" formControlName="phone">
-      <div *ngIf="hasError('phone','required')" class="text-danger small">Telefoni është i detyrueshëm</div>
-      <div *ngIf="hasError('phone','pattern')" class="text-danger small">Numri nuk është valid</div>
-    </div>
+        <div class="form-group">
+          <label for="fullName" class="form-label">
+            <i class="icon">👤</i>
+            Emër + Mbiemër
+          </label>
+          <input
+            type="text"
+            id="fullName"
+            class="form-control"
+            [class.error]="hasError('fullName','required')"
+            formControlName="fullName"
+            placeholder="Shkruani emrin tuaj të plotë">
+          <div *ngIf="hasError('fullName','required')" class="error-message">
+            Emri është i detyrueshëm
+          </div>
+        </div>
+      </div>
 
-    <!-- Kërkesa speciale -->
-    <div class="col-12">
-      <label for="requests" class="form-label">Kërkesa Speciale</label>
-      <textarea id="requests" rows="3" class="form-control" formControlName="requests"></textarea>
-    </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email" class="form-label">
+            <i class="icon">📧</i>
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            [class.error]="hasError('email','required') || hasError('email','email')"
+            formControlName="email"
+            placeholder="example@email.com">
+          <div *ngIf="hasError('email','required')" class="error-message">
+            Email është i detyrueshëm
+          </div>
+          <div *ngIf="hasError('email','email')" class="error-message">
+            Email nuk është valid
+          </div>
+        </div>
 
-    <div class="col-12">
-      <button type="submit" class="btn btn-primary w-100">Dërgo Rezervimin</button>
-    </div>
-  </form>
+        <div class="form-group">
+          <label for="phone" class="form-label">
+            <i class="icon">📞</i>
+            Telefon
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            class="form-control"
+            [class.error]="hasError('phone','required') || hasError('phone','pattern')"
+            formControlName="phone"
+            placeholder="+355 XX XXX XXXX">
+          <div *ngIf="hasError('phone','required')" class="error-message">
+            Telefoni është i detyrueshëm
+          </div>
+          <div *ngIf="hasError('phone','pattern')" class="error-message">
+            Numri nuk është valid
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="requests" class="form-label">
+          <i class="icon">💬</i>
+          Kërkesa Speciale <span class="optional">(Opsionale)</span>
+        </label>
+        <textarea
+          id="requests"
+          rows="4"
+          class="form-control textarea"
+          formControlName="requests"
+          placeholder="Nëse keni ndonjë kërkesë të veçantë, ju lutem shkruani këtu..."></textarea>
+      </div>
+
+      <div class="feedback-section" *ngIf="successMessage || errorMessage">
+        <div *ngIf="successMessage" class="alert success">
+          <i class="alert-icon">✅</i>
+          {{ successMessage }}
+        </div>
+        <div *ngIf="errorMessage" class="alert error">
+          <i class="alert-icon">⚠️</i>
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <div class="submit-section">
+        <button
+          type="submit"
+          class="submit-btn"
+          [class.loading]="isLoading"
+          [disabled]="reservationForm.invalid || isLoading">
+          <span class="btn-content">
+            <span *ngIf="isLoading" class="spinner"></span>
+            <i *ngIf="!isLoading" class="btn-icon">🍽️</i>
+            <span class="btn-text">
+              {{ isLoading ? 'Duke dërguar...' : 'Dërgo Rezervimin' }}
+            </span>
+          </span>
+        </button>
+      </div>
+
+    </form>
+  </div>
 </div>
