@@ -1,0 +1,61 @@
+<div class="container py-5">
+  <h2 class="mb-4 text-center">Bëj Rezervimin Tënd</h2>
+
+  <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="row g-3">
+
+    <!-- Data -->
+    <div class="col-md-6">
+      <label for="date" class="form-label">Data</label>
+      <input type="date" id="date" class="form-control" formControlName="date">
+      <div *ngIf="hasError('date','required')" class="text-danger small">Data është e detyrueshme</div>
+    </div>
+
+    <!-- Ora -->
+    <div class="col-md-6">
+      <label for="time" class="form-label">Ora</label>
+      <input type="time" id="time" class="form-control" formControlName="time">
+      <div *ngIf="hasError('time','required')" class="text-danger small">Ora është e detyrueshme</div>
+    </div>
+
+    <!-- Numri i personave -->
+    <div class="col-md-6">
+      <label for="guests" class="form-label">Nr. Personave</label>
+      <input type="number" id="guests" class="form-control" formControlName="guests" min="1">
+      <div *ngIf="hasError('guests','required')" class="text-danger small">Numri i personave është i detyrueshëm</div>
+      <div *ngIf="hasError('guests','min')" class="text-danger small">Duhet të jetë minimumi 1</div>
+    </div>
+
+    <!-- Emri + Mbiemri -->
+    <div class="col-md-6">
+      <label for="fullName" class="form-label">Emër + Mbiemër</label>
+      <input type="text" id="fullName" class="form-control" formControlName="fullName">
+      <div *ngIf="hasError('fullName','required')" class="text-danger small">Emri është i detyrueshëm</div>
+    </div>
+
+    <!-- Email -->
+    <div class="col-md-6">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" id="email" class="form-control" formControlName="email">
+      <div *ngIf="hasError('email','required')" class="text-danger small">Email është i detyrueshëm</div>
+      <div *ngIf="hasError('email','email')" class="text-danger small">Email nuk është valid</div>
+    </div>
+
+    <!-- Telefon -->
+    <div class="col-md-6">
+      <label for="phone" class="form-label">Telefon</label>
+      <input type="tel" id="phone" class="form-control" formControlName="phone">
+      <div *ngIf="hasError('phone','required')" class="text-danger small">Telefoni është i detyrueshëm</div>
+      <div *ngIf="hasError('phone','pattern')" class="text-danger small">Numri nuk është valid</div>
+    </div>
+
+    <!-- Kërkesa speciale -->
+    <div class="col-12">
+      <label for="requests" class="form-label">Kërkesa Speciale</label>
+      <textarea id="requests" rows="3" class="form-control" formControlName="requests"></textarea>
+    </div>
+
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary w-100">Dërgo Rezervimin</button>
+    </div>
+  </form>
+</div>
