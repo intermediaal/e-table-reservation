@@ -12,6 +12,7 @@ export interface ReservationRequest {
   time: string;
   guests: number;
   requests: string;
+  zone?: string;
 }
 
 @Injectable({
