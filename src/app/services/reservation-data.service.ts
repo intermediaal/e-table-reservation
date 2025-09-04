@@ -1,24 +1,5 @@
 import { Injectable } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class ReservationDataService {
-  private reservationData: ReservationRequest | null = null;
-
-  setReservationData(data: ReservationRequest) {
-    this.reservationData = data;
-  }
-
-  getReservationData() {
-    return this.reservationData;
-  }
-
-  clearReservationData() {
-    this.reservationData = null;
-  }
-}
-
 export interface ReservationRequest {
   customerName: string;
   customerEmail: string;
@@ -26,6 +7,30 @@ export interface ReservationRequest {
   date: string;
   time: string;
   guests: number;
-  requests?: string;
-  zone?: string;
+  requests: string;
+  areaId: number | null;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ReservationDataService {
+  private readonly STORAGE_KEY = 'tempReservationData';
+
+  setReservationData(data: ReservationRequest): void {
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+  }
+
+
+  getReservationData(): ReservationRequest | null {
+    const dataString = sessionStorage.getItem(this.STORAGE_KEY);
+    if (dataString) {
+      return JSON.parse(dataString) as ReservationRequest;
+    }
+    return null;
+  }
+
+  clearReservationData(): void {
+    sessionStorage.removeItem(this.STORAGE_KEY);
+  }
 }

@@ -13,6 +13,7 @@ export interface AvailableTimeSlot {
   time: string;
   availableAreaIds: number[];
 }
+
 export interface ReservationRequest {
   customerName: string;
   customerEmail: string;
@@ -24,6 +25,21 @@ export interface ReservationRequest {
   areaId: number | null;
 }
 
+export interface ReservationDetails {
+  id: number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  guests: number;
+  tableIds: number[];
+  status: string;
+  specialRequest: string;
+  viewToken: string;
+
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -36,13 +52,22 @@ export class ReservationService {
     return this.http.get<Area[]>(`${this.apiUrl}/public/business/${businessSlug}/areas`);
   }
 
-  createReservation(reservation: ReservationRequest): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/reservations`, reservation);
-  }
-
   getAvailability(date: string, guests: number): Observable<AvailableTimeSlot[]> {
     return this.http.get<AvailableTimeSlot[]>(`${this.apiUrl}/public/availability/slots`, {
       params: { date, guests }
     });
+  }
+
+  createReservation(reservation: ReservationRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/reservations`, reservation);
+  }
+
+
+  getReservationByToken(token: string): Observable<ReservationDetails> {
+    return this.http.get<ReservationDetails>(`${this.apiUrl}/public/reservations/view/${token}`);
+  }
+
+  cancelReservation(token: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/public/reservations/cancel/${token}`, {});
   }
 }
