@@ -1,23 +1,24 @@
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 import { ReservationService, ReservationRequest, Area, AvailableTimeSlot } from '../../services/reservation.service';
+import { ReservationDataService } from '../../services/reservation-data.service';
 
 @Component({
   selector: 'app-reservation',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, HttpClientModule, RouterModule],
-  providers: [ReservationService],
+  providers: [ReservationService, ReservationDataService],
   templateUrl: './reservation.component.html',
   styleUrls: ['./reservation.component.scss']
 })
 export class ReservationComponent implements OnInit {
   reservationForm: FormGroup;
 
-  // State Properties
   isLoading = false;
   isAvailabilityLoading = false;
   successMessage: string | null = null;
@@ -25,30 +26,28 @@ export class ReservationComponent implements OnInit {
   currentStep = 1;
   showMoreGuests = false;
 
-  // Dynamic Data
   businessSlug: string | null = null;
   businessName: string = 'our Restaurant';
   allBookableAreas: Area[] = [];
   dailyAvailability: AvailableTimeSlot[] = [];
   allPossibleTimes: string[] = [];
-
-  // Calendar Properties
-  currentDate = new Date();
-  days: number[] = [];
-  firstDayOffset = 0;
-  month = '';
-  year = 0;
+  minDate: string;
 
   constructor(
     private fb: FormBuilder,
     private reservationService: ReservationService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
+    private reservationDataService: ReservationDataService
   ) {
+    const today = new Date();
+    this.minDate = today.toISOString().split('T')[0];
+
     this.reservationForm = this.fb.group({
       guests: [2, [Validators.required, Validators.min(1)]],
       date: [this.getTodayString(), Validators.required],
-      areaId: [null],
       time: ['', Validators.required],
+      areaId: [null],
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9+ ]{8,20}$/)]],
@@ -64,7 +63,6 @@ export class ReservationComponent implements OnInit {
         this.businessSlug = slug;
         this.businessName = this.prettifySlug(slug);
         this.loadAllBookableAreas();
-        this.setupCalendar();
         this.listenForAvailabilityChanges();
         this.fetchAvailability();
       } else {
@@ -74,29 +72,23 @@ export class ReservationComponent implements OnInit {
   }
 
   listenForAvailabilityChanges(): void {
-    this.reservationForm.get('guests')?.valueChanges.pipe(
-      debounceTime(400), distinctUntilChanged(), filter(val => val > 0)
-    ).subscribe(() => this.fetchAvailability());
+    const guests$ = this.reservationForm.get('guests')?.valueChanges.pipe(debounceTime(400), distinctUntilChanged(), filter(val => val > 0));
+    const date$ = this.reservationForm.get('date')?.valueChanges.pipe(distinctUntilChanged());
 
-    this.reservationForm.get('date')?.valueChanges.pipe(
-      distinctUntilChanged()
-    ).subscribe(() => this.fetchAvailability());
+    if (guests$) guests$.subscribe(() => this.fetchAvailability());
+    if (date$) date$.subscribe(() => this.fetchAvailability());
   }
 
   loadAllBookableAreas(): void {
     if (!this.businessSlug) return;
-    this.reservationService.getAvailableAreas(this.businessSlug).subscribe(areas => {
-      this.allBookableAreas = areas;
-    });
+    this.reservationService.getAvailableAreas(this.businessSlug).subscribe(areas => { this.allBookableAreas = areas; });
   }
 
   fetchAvailability(): void {
     const guests = this.reservationForm.get('guests')?.value;
     const date = this.reservationForm.get('date')?.value;
-    if (!guests || !date || !this.businessSlug) {
-      this.dailyAvailability = [];
-      return;
-    }
+    if (!guests || !date || !this.businessSlug) { this.dailyAvailability = []; return; }
+
     this.isAvailabilityLoading = true;
     this.reservationService.getAvailability(date, guests).subscribe({
       next: (availability) => {
@@ -104,61 +96,33 @@ export class ReservationComponent implements OnInit {
         this.isAvailabilityLoading = false;
         this.validateAndUpdateSelections();
       },
-      error: () => {
-        this.isAvailabilityLoading = false;
-        this.errorMessage = "Could not fetch availability.";
-      }
+      error: () => { this.isAvailabilityLoading = false; this.errorMessage = "Could not fetch availability."; }
     });
   }
 
   validateAndUpdateSelections(): void {
-    this.selectTime(this.reservationForm.get('time')?.value);
-    this.selectArea(this.reservationForm.get('areaId')?.value);
-  }
-
-  setupCalendar(): void {
-    this.year = this.currentDate.getFullYear();
-    this.month = this.currentDate.toLocaleString('default', { month: 'long' });
-    const monthIndex = this.currentDate.getMonth();
-    const daysInMonth = new Date(this.year, monthIndex + 1, 0).getDate();
-    this.days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    const firstDay = new Date(this.year, monthIndex, 1).getDay();
-    this.firstDayOffset = firstDay === 0 ? 6 : firstDay - 1;
+    const selectedTime = this.reservationForm.get('time')?.value;
+    if (selectedTime && !this.isTimeAvailable(selectedTime)) { this.reservationForm.patchValue({ time: '' }); }
+    const selectedArea = this.reservationForm.get('areaId')?.value;
+    if (selectedArea !== null && !this.isAreaAvailableForSelectedTime(selectedArea)) { this.reservationForm.patchValue({ areaId: null }); }
   }
 
   generateAllPossibleTimes(): void {
     for (let h = 11; h < 23; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        this.allPossibleTimes.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
-      }
+      for (let m = 0; m < 60; m += 15) { this.allPossibleTimes.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`); }
     }
   }
 
-  selectGuests(num: number): void {
-    this.reservationForm.patchValue({ guests: num });
-    this.showMoreGuests = false;
-  }
-
+  selectGuests(num: number): void { this.reservationForm.patchValue({ guests: num }); this.showMoreGuests = false; }
   selectArea(areaId: number | null): void {
     this.reservationForm.patchValue({ areaId: areaId });
     const selectedTime = this.reservationForm.get('time')?.value;
-    if (selectedTime && !this.isTimeAvailableForSelectedArea(selectedTime)) {
-      this.reservationForm.patchValue({ time: '' });
-    }
+    if (selectedTime && !this.isTimeAvailableForSelectedArea(selectedTime)) { this.reservationForm.patchValue({ time: '' }); }
   }
-
-  selectDate(day: number): void {
-    const monthStr = (this.currentDate.getMonth() + 1).toString().padStart(2, '0');
-    const dayStr = day.toString().padStart(2, '0');
-    this.reservationForm.patchValue({ date: `${this.year}-${monthStr}-${dayStr}` });
-  }
-
   selectTime(time: string): void {
     this.reservationForm.patchValue({ time: time });
     const selectedAreaId = this.reservationForm.get('areaId')?.value;
-    if (selectedAreaId !== null && !this.isAreaAvailableForSelectedTime(selectedAreaId)) {
-      this.reservationForm.patchValue({ areaId: null });
-    }
+    if (selectedAreaId !== null && !this.isAreaAvailableForSelectedTime(selectedAreaId)) { this.reservationForm.patchValue({ areaId: null }); }
   }
 
   nextStep(): void { if (this.canProceed()) this.currentStep++; }
@@ -166,28 +130,18 @@ export class ReservationComponent implements OnInit {
 
   canProceed(): boolean {
     switch (this.currentStep) {
-      case 1: return this.reservationForm.get('guests')?.valid ?? false;
-      case 2: return true;
-      case 3: return this.reservationForm.get('date')?.valid ?? false;
-      case 4: return this.reservationForm.get('time')?.valid ?? false;
+      case 1: return (this.reservationForm.get('guests')?.valid && this.reservationForm.get('date')?.valid) ?? false;
+      case 2: return this.reservationForm.get('time')?.valid ?? false;
+      case 3: return true;
       default: return true;
     }
   }
 
-  isTimeAvailable(time: string): boolean {
-    return this.dailyAvailability.some(slot => slot.time.startsWith(time));
-  }
-
+  isTimeAvailable(time: string): boolean { return this.dailyAvailability.some(slot => slot.time.startsWith(time)); }
   isAreaAvailableForSelectedTime(areaId: number | null): boolean {
     const selectedTime = this.reservationForm.get('time')?.value;
-    if (!selectedTime) {
-      return true;
-    }
-
-    if (areaId === null) {
-      return this.dailyAvailability.some(slot => slot.time.startsWith(selectedTime));
-    }
-
+    if (!selectedTime) return true;
+    if (areaId === null) return this.dailyAvailability.some(slot => slot.time.startsWith(selectedTime));
     const timeSlot = this.dailyAvailability.find(slot => slot.time.startsWith(selectedTime));
     return !!timeSlot && timeSlot.availableAreaIds.includes(areaId);
   }
@@ -198,11 +152,15 @@ export class ReservationComponent implements OnInit {
     return !!timeSlot && timeSlot.availableAreaIds.includes(selectedAreaId);
   }
 
-  get formattedGuests(): string {
+  get formattedGuestsAndDate(): string {
     const guests = this.reservationForm.value.guests;
-    return guests ? `${guests} ${guests > 1 ? 'people' : 'person'}` : 'People';
+    const date = this.reservationForm.value.date;
+    if (!guests || !date) return 'Details';
+    const d = new Date(date + 'T00:00:00');
+    const dateStr = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+    return `${guests} ${guests > 1 ? 'people' : 'person'}, ${dateStr}`;
   }
-
+  get formattedTime(): string { return this.reservationForm.value.time || 'Time'; }
   get selectedZoneLabel(): string {
     const areaId = this.reservationForm.value.areaId;
     if (areaId === null) return 'Any Zone';
@@ -210,35 +168,13 @@ export class ReservationComponent implements OnInit {
     return area ? area.areaName : 'Zone';
   }
 
-  get formattedDate(): string {
-    const date = this.reservationForm.value.date;
-    if (!date) return 'Date';
-    const d = new Date(date + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
-  }
-
-  get formattedTime(): string {
-    return this.reservationForm.value.time || 'Time';
-  }
-
-
   onSubmit(): void {
     this.reservationForm.markAllAsTouched();
+    if (this.reservationForm.invalid) { return; }
 
-    if (this.reservationForm.invalid) {
-      console.error('Form is invalid. Aborting submission.');
-      Object.keys(this.reservationForm.controls).forEach(key => {
-        const control = this.reservationForm.get(key);
-        if (control && control.invalid) {
-          console.error(`Control '${key}' is invalid. Errors:`, control.errors);
-        }
-      });
-      return;
-    }
     this.isLoading = true;
     this.successMessage = null;
     this.errorMessage = null;
-
     const formValue = this.reservationForm.value;
     const payload: ReservationRequest = {
       customerName: formValue.fullName,
@@ -251,17 +187,13 @@ export class ReservationComponent implements OnInit {
       areaId: formValue.areaId
     };
 
+
     this.reservationService.createReservation(payload).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.successMessage = `Reservation confirmed! Your ID is #${response.id}.`;
-        this.reservationForm.reset({
-          guests: 2,
-          date: this.getTodayString(),
-          areaId: null
-        });
-        this.currentStep = 1;
-        this.fetchAvailability();
+
+        const token = response.viewToken;
+        this.router.navigate(['/view-reservation', token]);
       },
       error: (error) => {
         this.isLoading = false;
@@ -272,17 +204,12 @@ export class ReservationComponent implements OnInit {
 
   hasError(controlName: string, errorName: string): boolean {
     const control = this.reservationForm.get(controlName);
-    return !!(control?.hasError(errorName) && (control?.touched || (this.currentStep === 5 && control.invalid)));
+    return !!(control?.hasError(errorName) && (control?.touched || (this.currentStep === 4 && control.invalid)));
   }
 
   private getTodayString(): string {
-    const today = new Date();
-    const y = today.getFullYear();
-    const m = (today.getMonth() + 1).toString().padStart(2, '0');
-    const d = today.getDate().toString().padStart(2, '0');
-    return `${y}-${m}-${d}`;
+    return new Date().toISOString().split('T')[0];
   }
-
   private prettifySlug(slug: string): string {
     return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }

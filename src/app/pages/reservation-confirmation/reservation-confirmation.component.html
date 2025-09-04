@@ -1,23 +1,46 @@
 <div class="confirmation-container">
-  <div class="card confirmation-card">
-    <div class="card-body text-center">
-      <i class="uil uil-check-circle confirmation-icon"></i>
-      <h2 class="mt-3">Rezervimi u Konfirmua!</h2>
-      <p class="lead">Faleminderit për rezervimin tuaj. Ju mund të shikoni detajet më poshtë.</p>
+  <div *ngIf="isLoading" class="text-center">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+    <p class="mt-2 lead">Loading Reservation Details...</p>
+  </div>
 
-      <div class="confirmation-details">
-        <p><strong>ID e Rezervimit:</strong> {{ reservationId }}</p>
-        <p><strong>Data:</strong> {{ formattedDate }}</p>
-        <p><strong>Koha:</strong> {{ formattedTime }}</p>
-        <p><strong>Numri i Personave:</strong> {{ formattedGuests }}</p>
-        <p><strong>Zona:</strong> {{ selectedZone }}</p>
-        <p><strong>Emri:</strong> {{ fullName }}</p>
-        <p><strong>Email:</strong> {{ email }}</p>
-        <p><strong>Telefon:</strong> {{ phone }}</p>
-        <p><strong>Kërkesa Speciale:</strong> {{ requests || 'Nuk ka kërkesa' }}</p>
+  <div *ngIf="!isLoading" class="card confirmation-card">
+    <div class="card-body text-center">
+
+      <div *ngIf="status !== 'NOT_FOUND'">
+        <i class="uil confirmation-icon"
+           [ngClass]="{'uil-check-circle': status !== 'CANCELED', 'uil-times-circle cancelled': status === 'CANCELED'}"></i>
+        <h2 class="mt-3">{{ status === 'CANCELED' ? 'Reservation Cancelled' : 'Rezervimi u Konfirmua!' }}</h2>
+
+        <p class="lead">{{ cancellationMessage || 'Faleminderit për rezervimin tuaj. Ju mund të shikoni detajet më poshtë.' }}</p>
+
+        <div *ngIf="reservationData" class="confirmation-details">
+          <p><strong>ID e Rezervimit:</strong> {{ reservationId }}</p>
+          <p><strong>Data:</strong> {{ formattedDate }}</p>
+          <p><strong>Koha:</strong> {{ formattedTime }}</p>
+          <p><strong>Numri i Personave:</strong> {{ formattedGuests }}</p>
+          <p><strong>Zona:</strong> {{ selectedZone }}</p>
+          <p><strong>Emri:</strong> {{ fullName }}</p>
+          <p><strong>Email:</strong> {{ email }}</p>
+          <p><strong>Telefon:</strong> {{ phone }}</p>
+          <p><strong>Kërkesa Speciale:</strong> {{ requests }}</p>
+        </div>
+
+        <div class="mt-4">
+          <button *ngIf="status === 'CONFIRMED'" class="btn btn-danger me-2" (click)="cancelReservation()">
+            Cancel Reservation
+          </button>
+          <button class="btn btn-primary" (click)="goBack()">Kthehu në faqen kryesore</button>
+        </div>
       </div>
 
-      <button class="btn btn-primary mt-4" (click)="goBack()">Kthehu në faqen kryesore</button>
+      <div *ngIf="status === 'NOT_FOUND'">
+        <i class="uil uil-exclamation-triangle confirmation-icon error"></i>
+        <h2 class="mt-3">Reservation Not Found</h2>
+        <p class="lead">The link you used may be invalid or expired. Please check your email or contact the restaurant directly.</p>
+        <button class="btn btn-primary mt-4" (click)="goBack()">Kthehu</button>
+      </div>
+
     </div>
   </div>
 </div>
