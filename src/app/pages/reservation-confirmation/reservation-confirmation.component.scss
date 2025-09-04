@@ -1,0 +1,54 @@
+.confirmation-container {
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
+  url('https://e-table.al/assets/back/onboarding_05.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmation-card {
+  width: 500px;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  padding: 2rem;
+  text-align: center;
+}
+
+.confirmation-icon {
+  font-size: 4rem;
+  color: #28a745;
+}
+
+.confirmation-details {
+  margin-top: 1.5rem;
+  text-align: left;
+
+  p {
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  strong {
+    color: #003087;
+  }
+}
+
+.btn-primary {
+  background-color: #003087;
+  border-color: #003087;
+  border-radius: 25px;
+  padding: 0.6rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #00235c;
+  border-color: #00235c;
+}

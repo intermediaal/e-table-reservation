@@ -1,0 +1,23 @@
+<div class="confirmation-container">
+  <div class="card confirmation-card">
+    <div class="card-body text-center">
+      <i class="uil uil-check-circle confirmation-icon"></i>
+      <h2 class="mt-3">Rezervimi u Konfirmua!</h2>
+      <p class="lead">Faleminderit për rezervimin tuaj. Ju mund të shikoni detajet më poshtë.</p>
+
+      <div class="confirmation-details">
+        <p><strong>ID e Rezervimit:</strong> {{ reservationId }}</p>
+        <p><strong>Data:</strong> {{ formattedDate }}</p>
+        <p><strong>Koha:</strong> {{ formattedTime }}</p>
+        <p><strong>Numri i Personave:</strong> {{ formattedGuests }}</p>
+        <p><strong>Zona:</strong> {{ selectedZone }}</p>
+        <p><strong>Emri:</strong> {{ fullName }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+        <p><strong>Telefon:</strong> {{ phone }}</p>
+        <p><strong>Kërkesa Speciale:</strong> {{ requests || 'Nuk ka kërkesa' }}</p>
+      </div>
+
+      <button class="btn btn-primary mt-4" (click)="goBack()">Kthehu në faqen kryesore</button>
+    </div>
+  </div>
+</div>
