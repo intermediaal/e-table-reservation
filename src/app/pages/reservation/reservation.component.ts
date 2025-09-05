@@ -7,6 +7,7 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 import { ReservationService, ReservationRequest, Area, AvailableTimeSlot } from '../../services/reservation.service';
 import { ReservationDataService } from '../../services/reservation-data.service';
 import {ModernCalendarComponent} from "../modern-calendar/modern-calendar.component";
+import {ReservationSettings, ReservationSettingsService} from "../../services/reservation-settings.service";
 
 
 @Component({
@@ -18,6 +19,8 @@ import {ModernCalendarComponent} from "../modern-calendar/modern-calendar.compon
   styleUrls: ['./reservation.component.scss']
 })
 export class ReservationComponent implements OnInit {
+  private readonly baseUrl = 'http://localhost:3030';
+
   reservationForm: FormGroup;
 
   isLoading = false;
@@ -31,12 +34,20 @@ export class ReservationComponent implements OnInit {
   businessName: string = 'our Restaurant';
   allBookableAreas: Area[] = [];
   dailyAvailability: AvailableTimeSlot[] = [];
-  allPossibleTimes: string[] = [];
-  minDate: string;
 
+  minDate: string;
+  reservationSettings: ReservationSettings | null = null;
+
+  currentDate = new Date();
+  year = 0;
+  month = '';
+  days: number[] = [];
+  firstDayOffset = 0;
+  allPossibleTimes: string[] = [];
   constructor(
     private fb: FormBuilder,
     private reservationService: ReservationService,
+    private reservationSettingsService: ReservationSettingsService, // <-- Inject the new service
     private route: ActivatedRoute,
     private router: Router,
     private reservationDataService: ReservationDataService
@@ -63,14 +74,72 @@ export class ReservationComponent implements OnInit {
       if (slug) {
         this.businessSlug = slug;
         this.businessName = this.prettifySlug(slug);
+        this.setupCalendar();
+
+        this.loadBusinessSettings();
         this.loadAllBookableAreas();
         this.listenForAvailabilityChanges();
       } else {
-        this.errorMessage = "Business not specified. Please check the URL.";
+        this.errorMessage = "Business not specified in the URL.";
       }
     });
   }
 
+  setupCalendar(): void {
+    this.year = this.currentDate.getFullYear();
+    this.month = this.currentDate.toLocaleString('default', { month: 'long' });
+    const monthIndex = this.currentDate.getMonth();
+
+    const daysInMonth = new Date(this.year, monthIndex + 1, 0).getDate();
+    this.days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+    const firstDay = new Date(this.year, monthIndex, 1).getDay();
+    this.firstDayOffset = firstDay === 0 ? 6 : firstDay - 1;
+  }
+
+  generateAllPossibleTimes(): void {
+    for (let h = 11; h < 23; h++) {
+      for (let m = 0; m < 60; m += 30) {
+        this.allPossibleTimes.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+      }
+    }
+  }
+  loadBusinessSettings(): void {
+    if (!this.businessSlug) return;
+    this.reservationSettingsService.getSettings(this.businessSlug).subscribe(settings => {
+      this.reservationSettings = settings;
+
+      if (!settings.config.isActive) {
+        this.errorMessage = "We are sorry, but this restaurant is not currently accepting online reservations.";
+        return;
+      }
+
+      this.fetchAvailability();
+    });
+  }
+
+  get backgroundImageUrl(): string | null {
+    if (this.reservationSettings && this.reservationSettings.config.backgroundPhoto) {
+      const filename = this.reservationSettings.config.backgroundPhoto;
+      return `url(${this.baseUrl}/${filename.replace(/\\/g, '/')})`;
+    }
+    return null;
+  }
+
+  getImageUrl(filename: string): string {
+    if (!filename) return '';
+    return `${this.baseUrl}/${filename.replace(/\\/g, '/')}`;
+  }
+
+  isDayClosed(day: number): boolean {
+    if (!this.reservationSettings) return true;
+
+    const dateToCheck = new Date(this.year, this.currentDate.getMonth(), day);
+    const dayName = dateToCheck.toLocaleString('en-US', { weekday: 'long' }).toUpperCase();
+
+    const dayHours = this.reservationSettings.hours.find(h => h.dayOfWeek.toUpperCase() === dayName);
+    return dayHours ? dayHours.closed : true;
+  }
   getSelectedDate(): Date | null {
     const dateValue = this.reservationForm.get('date')?.value;
     if (dateValue) {
@@ -149,13 +218,13 @@ export class ReservationComponent implements OnInit {
     }
   }
 
-  generateAllPossibleTimes(): void {
-    for (let h = 11; h < 23; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        this.allPossibleTimes.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
-      }
-    }
-  }
+  // generateAllPossibleTimes(): void {
+  //   for (let h = 11; h < 23; h++) {
+  //     for (let m = 0; m < 60; m += 15) {
+  //       this.allPossibleTimes.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+  //     }
+  //   }
+  // }
 
   selectGuests(num: number): void {
     this.reservationForm.patchValue({ guests: num });

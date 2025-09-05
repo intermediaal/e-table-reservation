@@ -1,14 +1,12 @@
-<div class="reservation-container">
-
+<div class="reservation-container" [ngStyle]="{'background-image': backgroundImageUrl}">
   <div class="card reservation-card">
     <div class="card-body">
-      <div class="user-thumb text-center mb-2">
-        <img src="https://e-table.al/assets/icons/favicon-e.png" class="rounded-circle img-thumbnail icon-lg" alt="thumbnail">
-
-      </div>
-      <div class="text-center mt-2">
+      <div class="header-section text-center mb-4">
+        <img *ngIf="reservationSettings && reservationSettings.config && reservationSettings.config.icon"
+             [src]="getImageUrl(reservationSettings.config.icon)"
+             alt="{{ businessName }} Icon"
+             class="business-icon mb-3">
         <h5 class="text-primary">Rezervo një tavolinë te {{ businessName }}</h5>
-        <p class="text-muted">Enter your password to unlock the screen!</p>
       </div>
 
       <div class="stepper d-flex align-items-center justify-content-center mb-4">
@@ -131,7 +129,6 @@
       <div class="d-flex justify-content-between mt-4">
         <button *ngIf="currentStep > 1" type="button" class="btn btn-secondary w-sm waves-effect waves-light" (click)="prevStep()">Kthehu</button>
         <button *ngIf="currentStep < 5" type="button" class="btn btn-primary w-sm waves-effect waves-light ms-auto" [disabled]="!canProceed()" (click)="nextStep()">Vazhdo</button>
-
       </div>
 
       <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
