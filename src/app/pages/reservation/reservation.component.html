@@ -9,28 +9,32 @@
             <i class="uil uil-check" *ngIf="currentStep > 1"></i>
             <span class="step-number" *ngIf="currentStep <= 1">1</span>
           </div>
-          <div class="step-label mt-2">{{ currentStep > 1 ? formattedGuestsAndDate : 'Details' }}</div>
+          <div class="step-label mt-2">{{ currentStep > 1 ? formattedGuests : 'Guests' }}</div>
         </div>
-        <div class="step-line" [ngClass]="{ 'active': currentStep > 1 }"></div>
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 2, 'completed': currentStep > 2 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 2, 'bg-success text-white': currentStep > 2, 'border border-primary': currentStep < 2}">
             <i class="uil uil-check" *ngIf="currentStep > 2"></i>
             <span class="step-number" *ngIf="currentStep <= 2">2</span>
           </div>
-          <div class="step-label mt-2">{{ currentStep > 2 ? formattedTime : 'Time' }}</div>
+          <div class="step-label mt-2">{{ currentStep > 2 ? formattedDate : 'Date' }}</div>
         </div>
-        <div class="step-line" [ngClass]="{ 'active': currentStep > 2 }"></div>
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 3, 'completed': currentStep > 3 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 3, 'bg-success text-white': currentStep > 3, 'border border-primary': currentStep < 3}">
             <i class="uil uil-check" *ngIf="currentStep > 3"></i>
             <span class="step-number" *ngIf="currentStep <= 3">3</span>
           </div>
-          <div class="step-label mt-2">{{ currentStep > 3 ? selectedZoneLabel : 'Zone' }}</div>
+          <div class="step-label mt-2">{{ currentStep > 3 ? formattedTime : 'Time' }}</div>
         </div>
-        <div class="step-line" [ngClass]="{ 'active': currentStep > 3 }"></div>
-        <div class="step text-center" [ngClass]="{ 'active': currentStep === 4 }">
-          <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 4, 'border border-primary': currentStep < 4}">
-            <span class="step-number">4</span>
+        <div class="step text-center" [ngClass]="{ 'active': currentStep === 4, 'completed': currentStep > 4 }">
+          <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 4, 'bg-success text-white': currentStep > 4, 'border border-primary': currentStep < 4}">
+            <i class="uil uil-check" *ngIf="currentStep > 4"></i>
+            <span class="step-number" *ngIf="currentStep <= 4">4</span>
+          </div>
+          <div class="step-label mt-2">{{ currentStep > 4 ? selectedZoneLabel : 'Zone' }}</div>
+        </div>
+        <div class="step text-center" [ngClass]="{ 'active': currentStep === 5 }">
+          <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 5, 'border border-primary': currentStep < 5}">
+            <span class="step-number">5</span>
           </div>
           <div class="step-label mt-2">Submit</div>
         </div>
@@ -46,17 +50,23 @@
           <div *ngIf="showMoreGuests" class="mt-2 text-center">
             <input type="number" formControlName="guests" class="form-control w-50 mx-auto" min="9" placeholder="Enter number">
           </div>
-          <hr class="my-4">
+        </div>
+
+        <div *ngIf="currentStep === 2">
           <h4 class="text-center">Which day?</h4>
-          <div class="calendar mx-auto">
-            <input type="date" formControlName="date" class="form-control date-picker" [min]="minDate">
-            <div *ngIf="hasError('date', 'required')" class="text-danger small mt-1">
-              Data është e detyrueshme
+          <div class="calendar-container">
+            <app-modern-calendar
+              [selectedDate]="getSelectedDate()"
+              [minDate]="getMinDate()"
+              (dateSelected)="onDateSelected($event)">
+            </app-modern-calendar>
+            <div *ngIf="hasError('date', 'required')" class="text-danger small mt-2 text-center">
+              Date is required
             </div>
           </div>
         </div>
 
-        <div *ngIf="currentStep === 2" class="text-center">
+        <div *ngIf="currentStep === 3" class="text-center">
           <h4>Which time?</h4>
           <div *ngIf="isAvailabilityLoading" class="my-4">
             <div class="spinner-border text-primary" role="status"></div>
@@ -74,7 +84,7 @@
           </div>
         </div>
 
-        <div *ngIf="currentStep === 3" class="text-center">
+        <div *ngIf="currentStep === 4" class="text-center">
           <h4>Which zone? (Optional)</h4>
           <div class="d-flex flex-wrap justify-content-center">
             <button type="button" class="btn btn-outline-primary m-2 zone-btn" [ngClass]="{ 'btn-primary text-white': reservationForm.value.areaId === null }" (click)="selectArea(null)" [disabled]="!isAreaAvailableForSelectedTime(null)">Any Available</button>
@@ -84,7 +94,7 @@
           </div>
         </div>
 
-        <div *ngIf="currentStep === 4">
+        <div *ngIf="currentStep === 5">
           <div class="form-group mb-3">
             <label for="fullName">Full Name</label>
             <input id="fullName" formControlName="fullName" class="form-control" placeholder="Enter full name">
@@ -112,7 +122,7 @@
 
       <div class="d-flex justify-content-between mt-4">
         <button *ngIf="currentStep > 1" type="button" class="btn btn-secondary" (click)="prevStep()">Back</button>
-        <button *ngIf="currentStep < 4" type="button" class="btn btn-primary ms-auto" [disabled]="!canProceed()" (click)="nextStep()">Next</button>
+        <button *ngIf="currentStep < 5" type="button" class="btn btn-primary ms-auto" [disabled]="!canProceed()" (click)="nextStep()">Next</button>
       </div>
 
       <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>

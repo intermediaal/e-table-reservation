@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -7,11 +6,13 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 import { ReservationService, ReservationRequest, Area, AvailableTimeSlot } from '../../services/reservation.service';
 import { ReservationDataService } from '../../services/reservation-data.service';
+import {ModernCalendarComponent} from "../modern-calendar/modern-calendar.component";
+
 
 @Component({
   selector: 'app-reservation',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, RouterModule, ModernCalendarComponent],
   providers: [ReservationService, ReservationDataService],
   templateUrl: './reservation.component.html',
   styleUrls: ['./reservation.component.scss']
@@ -64,80 +65,146 @@ export class ReservationComponent implements OnInit {
         this.businessName = this.prettifySlug(slug);
         this.loadAllBookableAreas();
         this.listenForAvailabilityChanges();
-        this.fetchAvailability();
       } else {
         this.errorMessage = "Business not specified. Please check the URL.";
       }
     });
   }
 
+  getSelectedDate(): Date | null {
+    const dateValue = this.reservationForm.get('date')?.value;
+    if (dateValue) {
+      const [year, month, day] = dateValue.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+    return null;
+  }
+
+  getMinDate(): Date {
+    return new Date(this.minDate + 'T00:00:00');
+  }
+
+  onDateSelected(date: Date): void {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+
+    this.reservationForm.patchValue({ date: dateString });
+  }
+
   listenForAvailabilityChanges(): void {
     const guests$ = this.reservationForm.get('guests')?.valueChanges.pipe(debounceTime(400), distinctUntilChanged(), filter(val => val > 0));
     const date$ = this.reservationForm.get('date')?.valueChanges.pipe(distinctUntilChanged());
 
-    if (guests$) guests$.subscribe(() => this.fetchAvailability());
-    if (date$) date$.subscribe(() => this.fetchAvailability());
+    if (guests$) guests$.subscribe(() => this.fetchAvailabilityIfReady());
+    if (date$) date$.subscribe(() => this.fetchAvailabilityIfReady());
+  }
+
+  fetchAvailabilityIfReady(): void {
+    const guests = this.reservationForm.get('guests')?.value;
+    const date = this.reservationForm.get('date')?.value;
+    if (guests && date && this.businessSlug) {
+      this.fetchAvailability();
+    }
   }
 
   loadAllBookableAreas(): void {
     if (!this.businessSlug) return;
-    this.reservationService.getAvailableAreas(this.businessSlug).subscribe(areas => { this.allBookableAreas = areas; });
+    this.reservationService.getAvailableAreas(this.businessSlug).subscribe(areas => {
+      this.allBookableAreas = areas;
+    });
   }
 
   fetchAvailability(): void {
     const guests = this.reservationForm.get('guests')?.value;
     const date = this.reservationForm.get('date')?.value;
-    if (!guests || !date || !this.businessSlug) { this.dailyAvailability = []; return; }
+    if (!guests || !date || !this.businessSlug) {
+      this.dailyAvailability = [];
+      return;
+    }
 
     this.isAvailabilityLoading = true;
-    this.reservationService.getAvailability(date, guests).subscribe({
+    this.reservationService.getAvailability(date, guests, this.businessSlug).subscribe({
       next: (availability) => {
         this.dailyAvailability = availability;
         this.isAvailabilityLoading = false;
         this.validateAndUpdateSelections();
       },
-      error: () => { this.isAvailabilityLoading = false; this.errorMessage = "Could not fetch availability."; }
+      error: () => {
+        this.isAvailabilityLoading = false;
+        this.errorMessage = "Could not fetch availability.";
+      }
     });
   }
 
   validateAndUpdateSelections(): void {
     const selectedTime = this.reservationForm.get('time')?.value;
-    if (selectedTime && !this.isTimeAvailable(selectedTime)) { this.reservationForm.patchValue({ time: '' }); }
+    if (selectedTime && !this.isTimeAvailable(selectedTime)) {
+      this.reservationForm.patchValue({ time: '' });
+    }
     const selectedArea = this.reservationForm.get('areaId')?.value;
-    if (selectedArea !== null && !this.isAreaAvailableForSelectedTime(selectedArea)) { this.reservationForm.patchValue({ areaId: null }); }
+    if (selectedArea !== null && !this.isAreaAvailableForSelectedTime(selectedArea)) {
+      this.reservationForm.patchValue({ areaId: null });
+    }
   }
 
   generateAllPossibleTimes(): void {
     for (let h = 11; h < 23; h++) {
-      for (let m = 0; m < 60; m += 15) { this.allPossibleTimes.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`); }
+      for (let m = 0; m < 60; m += 15) {
+        this.allPossibleTimes.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+      }
     }
   }
 
-  selectGuests(num: number): void { this.reservationForm.patchValue({ guests: num }); this.showMoreGuests = false; }
+  selectGuests(num: number): void {
+    this.reservationForm.patchValue({ guests: num });
+    this.showMoreGuests = false;
+  }
+
   selectArea(areaId: number | null): void {
     this.reservationForm.patchValue({ areaId: areaId });
     const selectedTime = this.reservationForm.get('time')?.value;
-    if (selectedTime && !this.isTimeAvailableForSelectedArea(selectedTime)) { this.reservationForm.patchValue({ time: '' }); }
+    if (selectedTime && !this.isTimeAvailableForSelectedArea(selectedTime)) {
+      this.reservationForm.patchValue({ time: '' });
+    }
   }
+
   selectTime(time: string): void {
     this.reservationForm.patchValue({ time: time });
     const selectedAreaId = this.reservationForm.get('areaId')?.value;
-    if (selectedAreaId !== null && !this.isAreaAvailableForSelectedTime(selectedAreaId)) { this.reservationForm.patchValue({ areaId: null }); }
+    if (selectedAreaId !== null && !this.isAreaAvailableForSelectedTime(selectedAreaId)) {
+      this.reservationForm.patchValue({ areaId: null });
+    }
   }
 
-  nextStep(): void { if (this.canProceed()) this.currentStep++; }
-  prevStep(): void { if (this.currentStep > 1) this.currentStep--; }
+  nextStep(): void {
+    if (this.canProceed()) {
+      this.currentStep++;
+      if (this.currentStep === 3) {
+        this.fetchAvailabilityIfReady();
+      }
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep > 1) this.currentStep--;
+  }
 
   canProceed(): boolean {
     switch (this.currentStep) {
-      case 1: return (this.reservationForm.get('guests')?.valid && this.reservationForm.get('date')?.valid) ?? false;
-      case 2: return this.reservationForm.get('time')?.valid ?? false;
-      case 3: return true;
+      case 1: return this.reservationForm.get('guests')?.valid ?? false;
+      case 2: return this.reservationForm.get('date')?.valid ?? false;
+      case 3: return this.reservationForm.get('time')?.valid ?? false;
+      case 4: return true; // Zone selection is optional
       default: return true;
     }
   }
 
-  isTimeAvailable(time: string): boolean { return this.dailyAvailability.some(slot => slot.time.startsWith(time)); }
+  isTimeAvailable(time: string): boolean {
+    return this.dailyAvailability.some(slot => slot.time.startsWith(time));
+  }
+
   isAreaAvailableForSelectedTime(areaId: number | null): boolean {
     const selectedTime = this.reservationForm.get('time')?.value;
     if (!selectedTime) return true;
@@ -145,6 +212,7 @@ export class ReservationComponent implements OnInit {
     const timeSlot = this.dailyAvailability.find(slot => slot.time.startsWith(selectedTime));
     return !!timeSlot && timeSlot.availableAreaIds.includes(areaId);
   }
+
   isTimeAvailableForSelectedArea(time: string): boolean {
     const selectedAreaId = this.reservationForm.get('areaId')?.value;
     if (selectedAreaId === null) return this.isTimeAvailable(time);
@@ -152,15 +220,23 @@ export class ReservationComponent implements OnInit {
     return !!timeSlot && timeSlot.availableAreaIds.includes(selectedAreaId);
   }
 
-  get formattedGuestsAndDate(): string {
+  get formattedGuests(): string {
     const guests = this.reservationForm.value.guests;
-    const date = this.reservationForm.value.date;
-    if (!guests || !date) return 'Details';
-    const d = new Date(date + 'T00:00:00');
-    const dateStr = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-    return `${guests} ${guests > 1 ? 'people' : 'person'}, ${dateStr}`;
+    if (!guests) return 'Guests';
+    return `${guests} ${guests > 1 ? 'people' : 'person'}`;
   }
-  get formattedTime(): string { return this.reservationForm.value.time || 'Time'; }
+
+  get formattedDate(): string {
+    const date = this.reservationForm.value.date;
+    if (!date) return 'Date';
+    const d = new Date(date + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+  }
+
+  get formattedTime(): string {
+    return this.reservationForm.value.time || 'Time';
+  }
+
   get selectedZoneLabel(): string {
     const areaId = this.reservationForm.value.areaId;
     if (areaId === null) return 'Any Zone';
@@ -170,7 +246,10 @@ export class ReservationComponent implements OnInit {
 
   onSubmit(): void {
     this.reservationForm.markAllAsTouched();
-    if (this.reservationForm.invalid) { return; }
+    if (this.reservationForm.invalid || !this.businessSlug) {
+      console.error('Form is invalid or business slug is missing.');
+      return;
+    }
 
     this.isLoading = true;
     this.successMessage = null;
@@ -184,14 +263,13 @@ export class ReservationComponent implements OnInit {
       time: formValue.time,
       guests: formValue.guests,
       requests: formValue.requests,
-      areaId: formValue.areaId
+      areaId: formValue.areaId,
+      businessSlug: this.businessSlug
     };
-
 
     this.reservationService.createReservation(payload).subscribe({
       next: (response) => {
         this.isLoading = false;
-
         const token = response.viewToken;
         this.router.navigate(['/view-reservation', token]);
       },
@@ -204,12 +282,13 @@ export class ReservationComponent implements OnInit {
 
   hasError(controlName: string, errorName: string): boolean {
     const control = this.reservationForm.get(controlName);
-    return !!(control?.hasError(errorName) && (control?.touched || (this.currentStep === 4 && control.invalid)));
+    return !!(control?.hasError(errorName) && (control?.touched || (this.currentStep === 5 && control.invalid)));
   }
 
   private getTodayString(): string {
     return new Date().toISOString().split('T')[0];
   }
+
   private prettifySlug(slug: string): string {
     return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }

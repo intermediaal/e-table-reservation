@@ -1,0 +1,84 @@
+// Add these styles to your reservation.component.scss
+
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+// Additional responsive styles for the calendar
+@media (max-width: 768px) {
+  .modern-calendar {
+    padding: 15px;
+    margin: 0 10px;
+  }
+
+  .calendar-day {
+    font-size: 12px;
+  }
+
+  .month-year {
+    font-size: 16px;
+  }
+}
+
+// Make the people buttons more consistent with the calendar style
+.people-btn {
+  width: 50px;
+  height: 50px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.people-btn:hover {
+  transform: translateY(-1px);
+}
+
+// Enhanced time slot buttons
+.time-btn {
+  min-width: 80px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.time-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+// Enhanced zone buttons
+.zone-btn {
+  transition: all 0.2s ease;
+}
+
+.zone-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+// Stepper enhancements to match modern design
+.stepper .step.active .avatar-title {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.stepper .step.completed .avatar-title {
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+// Form enhancements
+.form-control:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+// Card enhancements
+.reservation-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.reservation-card .card-body {
+  padding: 2rem;
+}

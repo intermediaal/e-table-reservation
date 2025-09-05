@@ -9,6 +9,8 @@ export interface ReservationRequest {
   guests: number;
   requests: string;
   areaId: number | null;
+  businessSlug: string;
+
 }
 
 @Injectable({
