@@ -19,6 +19,8 @@ import {ReservationSettings, ReservationSettingsService} from "../../services/re
   styleUrls: ['./reservation.component.scss']
 })
 export class ReservationComponent implements OnInit {
+  private readonly baseUrl = 'http://localhost:3030';
+
   reservationForm: FormGroup;
 
   isLoading = false;
@@ -116,6 +118,18 @@ export class ReservationComponent implements OnInit {
     });
   }
 
+  get backgroundImageUrl(): string | null {
+    if (this.reservationSettings && this.reservationSettings.config.backgroundPhoto) {
+      const filename = this.reservationSettings.config.backgroundPhoto;
+      return `url(${this.baseUrl}/${filename.replace(/\\/g, '/')})`;
+    }
+    return null;
+  }
+
+  getImageUrl(filename: string): string {
+    if (!filename) return '';
+    return `${this.baseUrl}/${filename.replace(/\\/g, '/')}`;
+  }
 
   isDayClosed(day: number): boolean {
     if (!this.reservationSettings) return true;
