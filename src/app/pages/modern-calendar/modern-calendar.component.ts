@@ -14,169 +14,11 @@ interface CalendarDay {
   selector: 'app-modern-calendar',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="modern-calendar">
-      <div class="calendar-header">
-        <button type="button" class="nav-button" (click)="previousMonth()" [disabled]="!canNavigateToPrevious()">
-          <i class="uil uil-angle-left"></i>
-        </button>
-        <h3 class="month-year">{{ currentMonthYear }}</h3>
-        <button type="button" class="nav-button" (click)="nextMonth()">
-          <i class="uil uil-angle-right"></i>
-        </button>
-      </div>
-
-      <div class="calendar-weekdays">
-        <div class="weekday" *ngFor="let day of weekdays">{{ day }}</div>
-      </div>
-
-      <div class="calendar-grid">
-        <button
-          type="button"
-          *ngFor="let day of calendarDays"
-          class="calendar-day"
-          [ngClass]="{
-            'other-month': !day.isCurrentMonth,
-            'today': day.isToday,
-            'selected': day.isSelected,
-            'past': day.isPast
-          }"
-          [disabled]="day.isPast || !day.isCurrentMonth"
-          (click)="selectDate(day)"
-        >
-          {{ day.day }}
-        </button>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .modern-calendar {
-      background: white;
-      border-radius: 12px;
-      padding: 28px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      max-width: 520px;
-      width: 100%;
-      margin: 0 auto;
-    }
-
-    .calendar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .nav-button {
-      background: none;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      color: #6b7280;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-    }
-
-    .nav-button:hover:not(:disabled) {
-      background-color: #f3f4f6;
-      color: #374151;
-    }
-
-    .nav-button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .month-year {
-      font-size: 20px;
-      font-weight: 600;
-      color: #1f2937;
-      margin: 0;
-    }
-
-    .calendar-weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-
-    .weekday {
-      text-align: center;
-      font-size: 14px;
-      font-weight: 600;
-      color: #6b7280;
-      padding: 12px 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-    }
-
-    .calendar-day {
-      aspect-ratio: 1;
-      border: none;
-      background: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 500;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      color: #374151;
-      position: relative;
-      min-height: 48px;
-    }
-
-    .calendar-day:hover:not(:disabled):not(.past) {
-      background-color: #e5e7eb;
-    }
-
-    .calendar-day.other-month {
-      color: #d1d5db;
-    }
-
-    .calendar-day.today {
-      background-color: #dbeafe;
-      color: #003087;
-      font-weight: 600;
-    }
-
-    .calendar-day.selected {
-      background-color: #003087;
-      color: white;
-      font-weight: 600;
-    }
-
-    .calendar-day.selected:hover {
-      background-color: #00235c;
-    }
-
-    .calendar-day.past {
-      color: #d1d5db;
-      cursor: not-allowed;
-    }
-
-    .calendar-day:disabled {
-      cursor: not-allowed;
-    }
-
-    .calendar-day.today.selected {
-      background-color: #00235c;
-    }
-  `]
+  templateUrl: './modern-calendar.component.html',
+  styleUrls: ['./modern-calendar.component.scss']
 })
+
+
 export class ModernCalendarComponent implements OnInit, OnChanges {
   @Input() selectedDate: Date | null = null;
   @Input() minDate: Date | null = null;
@@ -186,8 +28,7 @@ export class ModernCalendarComponent implements OnInit, OnChanges {
   viewDate = new Date();
   calendarDays: CalendarDay[] = [];
 
-  // English weekdays
-  weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  weekdays = ['Hën', 'Mar', 'Mër', 'Enj', 'Pre', 'Sht', 'Die'];
 
   ngOnInit() {
     this.generateCalendar();
@@ -199,8 +40,8 @@ export class ModernCalendarComponent implements OnInit, OnChanges {
 
   get currentMonthYear(): string {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor',
+      'Korrik', 'Gusht', 'Shtator', 'Tetor', 'Nëntor', 'Dhjetor'
     ];
     return `${months[this.viewDate.getMonth()]} ${this.viewDate.getFullYear()}`;
   }

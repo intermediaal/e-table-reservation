@@ -9,7 +9,10 @@
   align-items: center;
   justify-content: center;
 }
-
+.icon-lg {
+  height: 4rem;
+  width: 4rem;
+}
 .reservation-card {
   width: 650px;
   border: none;
@@ -74,11 +77,7 @@
 
     // Active step styling
     &.active {
-      .avatar-title {
-        background-color: #2563eb !important;
-        color: #fff !important;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-      }
+
       .step-label {
         color: #2563eb;
         font-weight: 600;
@@ -87,11 +86,7 @@
 
     // Completed step styling
     &.completed {
-      .avatar-title {
-        background-color: #10b981 !important;
-        color: #fff !important;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-      }
+
       .step-label {
         color: #10b981;
         font-weight: 600;
@@ -151,7 +146,7 @@
   transition: all 0.2s ease;
 
   &:focus {
-    border-color: #003087;
+    border-color: #dee3fa;
     box-shadow: 0 0 0 3px rgba(0, 48, 135, 0.1);
     background-color: #fff;
   }
@@ -165,39 +160,17 @@
 
 // Button styling
 .btn-primary {
-  background-color: #2563eb;
-  border-color: #2563eb;
-  border-radius: 25px;
+
   padding: 0.6rem 1.5rem;
   font-weight: 500;
   transition: all 0.3s ease;
-
-  &:hover {
-    background-color: #1d4ed8;
-    border-color: #1d4ed8;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-  }
 
   &:focus {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
   }
 }
 
-.btn-secondary {
-  border-radius: 25px;
-  color: #6b7280;
-  border-color: #d1d5db;
-  background-color: #f9fafb;
-  transition: all 0.3s ease;
 
-  &:hover {
-    background-color: #f3f4f6;
-    color: #374151;
-    border-color: #9ca3af;
-    transform: translateY(-1px);
-  }
-}
 
 .btn-outline-primary {
   color: #2563eb;
@@ -239,20 +212,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #003087;
+  border: 2px solid #dee3fa;
 
   // Prevent layout shift on click/focus
   &:focus, &:active {
     outline: none;
     box-shadow: 0 0 0 2px rgba(0, 48, 135, 0.2);
-    border: 2px solid #003087;
+    border: 2px solid #dee3fa;
   }
 
   // Selected state
   &.btn-primary {
-    background-color: #003087;
-    border-color: #003087;
-    color: #fff;
+    background-color: #dee3fa;
+    border-color: #5b73e8 !important;
+    color:#5b73e8 !important;
   }
 }
 
