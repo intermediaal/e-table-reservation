@@ -11,29 +11,46 @@
 }
 
 .reservation-card {
-  width: 650px; // Fikse madhësinë për të gjitha hapet
+  width: 650px;
   border: none;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+
+  .card-body {
+    padding: 2rem;
+  }
 }
 
+// Enhanced stepper with proper step lines
 .stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 0;
+
   .step {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 70px;
+    min-width: 80px;
+    position: relative;
+    z-index: 2;
 
     .avatar-title {
-      width: 40px;
-      height: 40px;
+      width: 45px;
+      height: 45px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
       transition: all 0.3s ease;
+      border-radius: 50%;
+      position: relative;
+      z-index: 3;
 
       .step-number {
         font-size: 1rem;
@@ -45,125 +62,343 @@
     }
 
     .step-label {
-      font-size: 0.85rem;
+      font-size: 12px;
       margin-top: 8px;
       font-weight: 500;
-      color: #495057;
+      color: #6b7280;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      text-align: center;
+      white-space: nowrap;
     }
 
-    &.active .avatar-title {
-      background-color: #003087 !important;
-      color: #fff !important;
+    // Active step styling
+    &.active {
+      .avatar-title {
+        background-color: #2563eb !important;
+        color: #fff !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+      }
+      .step-label {
+        color: #2563eb;
+        font-weight: 600;
+      }
     }
 
-    &.completed .avatar-title {
-      background-color: #28a745 !important;
-      color: #fff !important;
+    // Completed step styling
+    &.completed {
+      .avatar-title {
+        background-color: #10b981 !important;
+        color: #fff !important;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+      }
+      .step-label {
+        color: #10b981;
+        font-weight: 600;
+      }
     }
 
-    &:not(.active):not(.completed) .avatar-title {
-      background-color: transparent !important;
-      border: 2px solid #003087;
-      color: #003087 !important;
+    // Inactive step styling
+    &:not(.active):not(.completed) {
+      .avatar-title {
+        background-color: #f9fafb !important;
+        border: 2px solid #d1d5db;
+        color: #6b7280 !important;
+      }
     }
   }
 
+  // Step connecting lines
   .step-line {
     flex: 1;
     height: 3px;
-    background-color: #dee2e6;
-    margin: 0 10px;
+    background-color: #e5e7eb;
+    margin: 0 -10px;
+    border-radius: 2px;
+    position: relative;
+    top: -20px; // Position it at the middle of the circles
+    z-index: 1;
+    min-width: 40px;
 
     &.active {
-      background-color: #003087;
+      background-color: #10b981;
     }
+  }
+
+  // Alternative approach - if the above doesn't work, try this:
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 22px; // Half the height of avatar-title
+    left: calc(100% - 10px);
+    width: 60px;
+    height: 3px;
+    background-color: #e5e7eb;
+    z-index: 1;
+  }
+
+  .step.completed:not(:last-child)::after {
+    background-color: #10b981;
   }
 }
 
+// Form styling
 .form-control {
   border-radius: 8px;
   padding: 0.75rem 1rem;
   background-color: #f9fafc;
   border: 1px solid #ced4da;
-}
+  transition: all 0.2s ease;
 
-.form-control.date-picker {
-  padding: 0.75rem;
-  font-size: 1rem;
+  &:focus {
+    border-color: #003087;
+    box-shadow: 0 0 0 3px rgba(0, 48, 135, 0.1);
+    background-color: #fff;
+  }
 }
 
 .form-group label {
   font-weight: 600;
   color: #333;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.5rem;
 }
 
+// Button styling
 .btn-primary {
-  background-color: #003087;
-  border-color: #003087;
+  background-color: #2563eb;
+  border-color: #2563eb;
   border-radius: 25px;
   padding: 0.6rem 1.5rem;
   font-weight: 500;
   transition: all 0.3s ease;
-}
 
-.btn-primary:hover {
-  background-color: #00235c;
-  border-color: #00235c;
+  &:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  }
 }
 
 .btn-secondary {
   border-radius: 25px;
-  color: #003087;
-  border-color: #003087;
-  background-color: transparent;
+  color: #6b7280;
+  border-color: #d1d5db;
+  background-color: #f9fafb;
   transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+  }
 }
 
-.btn-secondary:hover {
-  background-color: #e9ecef;
-  color: #00235c;
-  border-color: #00235c;
+.btn-outline-primary {
+  color: #2563eb;
+  border-color: #2563eb;
+
+  &:hover {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+  }
+
+  &.btn-primary {
+    background-color: #2563eb;
+    color: #fff;
+  }
 }
 
+// Interactive button styles
 .zone-btn, .time-btn, .people-btn {
-  min-width: 60px;
   border-radius: 25px;
   transition: all 0.2s ease;
+  font-weight: 500;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
-.zone-btn:hover, .time-btn:hover, .people-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.people-btn {
+  width: 50px;
+  height: 50px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #003087;
+
+  // Prevent layout shift on click/focus
+  &:focus, &:active {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 48, 135, 0.2);
+    border: 2px solid #003087;
+  }
+
+  // Selected state
+  &.btn-primary {
+    background-color: #003087;
+    border-color: #003087;
+    color: #fff;
+  }
 }
 
-.calendar {
-  max-width: 300px;
+.time-btn {
+  min-width: 80px;
 }
 
-.weekday-headers {
-  font-weight: bold;
-  color: #666;
-  margin-bottom: 0.5rem;
+// Calendar container
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
 }
 
-.days-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
+// Loading states
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
 }
 
+// Alert styling
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+.alert-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.alert-danger {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+// Text styling
+.text-danger {
+  color: #dc2626 !important;
+}
+
+h2, h4 {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+// Responsive design
 @media (max-width: 768px) {
   .reservation-container {
     padding: 1rem;
   }
+
   .reservation-card {
     width: 100%;
-    padding: 1.5rem;
+    padding: 1rem;
+
+    .card-body {
+      padding: 1.5rem;
+    }
   }
-  .stepper .step {
-    min-width: 50px;
+
+  .stepper {
+    justify-content: center;
+    overflow-x: auto;
+    padding: 10px 0;
+    margin-bottom: 1.5rem;
+
+    .step {
+      min-width: 70px;
+
+      .step-label {
+        font-size: 10px;
+      }
+
+      .avatar-title {
+        width: 35px;
+        height: 35px;
+      }
+    }
+
+    .step-line {
+      min-width: 30px;
+      margin: 0 -5px;
+      top: -15px;
+    }
+
+    .step:not(:last-child)::after {
+      width: 40px;
+      top: 17px;
+    }
+  }
+
+  .modern-calendar {
+    padding: 15px;
+    margin: 0 10px;
+  }
+
+  .calendar-day {
+    font-size: 12px;
+    min-height: 35px;
+  }
+
+  .month-year {
+    font-size: 16px;
+  }
+
+  .people-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .time-btn {
+    min-width: 70px;
+    font-size: 14px;
+  }
+
+  .zone-btn {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stepper {
+    .step {
+      min-width: 60px;
+
+      .step-label {
+        font-size: 9px;
+      }
+
+      .avatar-title {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+      }
+    }
+
+    .step-line {
+      height: 2px;
+      top: -12px;
+    }
+
+    .step:not(:last-child)::after {
+      height: 2px;
+      top: 15px;
+      width: 30px;
+    }
   }
 }

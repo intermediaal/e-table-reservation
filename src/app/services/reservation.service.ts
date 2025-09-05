@@ -23,6 +23,7 @@ export interface ReservationRequest {
   guests: number;
   requests: string;
   areaId: number | null;
+  businessSlug: string;
 }
 
 export interface ReservationDetails {
@@ -52,9 +53,10 @@ export class ReservationService {
     return this.http.get<Area[]>(`${this.apiUrl}/public/business/${businessSlug}/areas`);
   }
 
-  getAvailability(date: string, guests: number): Observable<AvailableTimeSlot[]> {
-    return this.http.get<AvailableTimeSlot[]>(`${this.apiUrl}/public/availability/slots`, {
-      params: { date, guests }
+  getAvailability(date: string, guests: number, businessSlug: string): Observable<AvailableTimeSlot[]> {
+    // --- FIX: The URL now includes the businessSlug ---
+    return this.http.get<AvailableTimeSlot[]>(`${this.apiUrl}/public/business/${businessSlug}/availability/slots`, {
+      params: { date, guests } // slug is in the path, not a param
     });
   }
 
