@@ -44,10 +44,14 @@ export class ReservationComponent implements OnInit {
   days: number[] = [];
   firstDayOffset = 0;
   allPossibleTimes: string[] = [];
+
+  maxGuestsForButtons = 8;
+  guestButtons: number[] = [];
+
   constructor(
     private fb: FormBuilder,
     private reservationService: ReservationService,
-    private reservationSettingsService: ReservationSettingsService, // <-- Inject the new service
+    private reservationSettingsService: ReservationSettingsService,
     private route: ActivatedRoute,
     private router: Router,
     private reservationDataService: ReservationDataService
@@ -74,15 +78,32 @@ export class ReservationComponent implements OnInit {
       if (slug) {
         this.businessSlug = slug;
         this.businessName = this.prettifySlug(slug);
-        this.setupCalendar();
 
         this.loadBusinessSettings();
         this.loadAllBookableAreas();
+        this.loadBusinessBookingInfo();
         this.listenForAvailabilityChanges();
       } else {
         this.errorMessage = "Business not specified in the URL.";
       }
     });
+  }
+
+  loadBusinessBookingInfo(): void {
+    if (!this.businessSlug) return;
+    this.reservationService.getBusinessBookingInfo(this.businessSlug).subscribe(info => {
+      this.maxGuestsForButtons = info.maxPartySize;
+      this.guestButtons = Array.from({ length: this.maxGuestsForButtons }, (_, i) => i + 1);
+
+    });
+  }
+  get formattedGuestsAndDate(): string {
+    const guests = this.reservationForm.value.guests;
+    const date = this.reservationForm.value.date;
+    if (!guests || !date) return 'Details';
+    const d = new Date(date + 'T00:00:00');
+    const dateStr = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+    return `${guests} ${guests > 1 ? 'people' : 'person'}, ${dateStr}`;
   }
 
   setupCalendar(): void {

@@ -54,9 +54,8 @@ export class ReservationService {
   }
 
   getAvailability(date: string, guests: number, businessSlug: string): Observable<AvailableTimeSlot[]> {
-    // --- FIX: The URL now includes the businessSlug ---
     return this.http.get<AvailableTimeSlot[]>(`${this.apiUrl}/public/business/${businessSlug}/availability/slots`, {
-      params: { date, guests } // slug is in the path, not a param
+      params: { date, guests }
     });
   }
 
@@ -71,5 +70,8 @@ export class ReservationService {
 
   cancelReservation(token: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/public/reservations/cancel/${token}`, {});
+  }
+  getBusinessBookingInfo(businessSlug: string): Observable<{ maxPartySize: number }> {
+    return this.http.get<{ maxPartySize: number }>(`${this.apiUrl}/public/business/${businessSlug}/booking-info`);
   }
 }
