@@ -1,3 +1,5 @@
+<!-- src/app/pages/reservation-confirmation/reservation-confirmation.component.html -->
+
 <div class="confirmation-container">
   <div *ngIf="isLoading" class="text-center">
     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
@@ -9,13 +11,22 @@
 
       <div *ngIf="status !== 'NOT_FOUND'">
         <i class="uil confirmation-icon"
-           [ngClass]="{'uil-check-circle': status !== 'CANCELED', 'uil-times-circle cancelled': status === 'CANCELED'}"></i>
-        <h2 class="mt-3">{{ status === 'CANCELED' ? 'Reservation Cancelled' : 'Rezervimi u Konfirmua!' }}</h2>
+           [ngClass]="{
+             'uil-check-circle': status === 'CONFIRMED',
+             'uil-times-circle cancelled': status === 'CANCELED',
+             'uil-pause-circle pending': status === 'PENDING_APPROVAL'
+           }"></i>
 
-        <p class="lead">{{ cancellationMessage || 'Faleminderit për rezervimin tuaj. Ju mund të shikoni detajet më poshtë.' }}</p>
+        <h2 *ngIf="status === 'CONFIRMED'" class="mt-3">Rezervimi u Konfirmua!</h2>
+        <h2 *ngIf="status === 'CANCELED'" class="mt-3">Reservation Cancelled</h2>
+        <h2 *ngIf="status === 'PENDING_APPROVAL'" class="mt-3">Request Received</h2>
 
-        <div *ngIf="reservationData" class="confirmation-details">
-          <p><strong>ID e Rezervimit:</strong> {{ reservationId }}</p>
+        <p *ngIf="status === 'CONFIRMED'" class="lead">Faleminderit për rezervimin tuaj. Ju mund të shikoni detajet më poshtë.</p>
+        <p *ngIf="status === 'CANCELED'" class="lead">{{ cancellationMessage || 'Your reservation has been cancelled.' }}</p>
+        <p *ngIf="status === 'PENDING_APPROVAL'" class="lead">Your request is pending approval. You will be notified by email once it has been reviewed.</p>
+
+        <div *ngIf="reservationDetails" class="confirmation-details">
+          <p><strong>ID e Rezervimit:</strong> {{ reservationDetails.id }}</p>
           <p><strong>Data:</strong> {{ formattedDate }}</p>
           <p><strong>Koha:</strong> {{ formattedTime }}</p>
           <p><strong>Numri i Personave:</strong> {{ formattedGuests }}</p>
@@ -27,8 +38,8 @@
         </div>
 
         <div class="mt-4">
-          <button *ngIf="status === 'CONFIRMED'" class="btn btn-danger me-2" (click)="cancelReservation()">
-            Cancel Reservation
+          <button *ngIf="status === 'CONFIRMED' || status === 'PENDING_APPROVAL'" class="btn btn-danger me-2" (click)="cancelReservation()">
+            Cancel {{ status === 'PENDING_APPROVAL' ? 'Request' : 'Reservation' }}
           </button>
           <button class="btn btn-primary" (click)="goBack()">Kthehu në faqen kryesore</button>
         </div>
@@ -36,8 +47,10 @@
 
       <div *ngIf="status === 'NOT_FOUND'">
         <i class="uil uil-exclamation-triangle confirmation-icon error"></i>
+
         <h2 class="mt-3">Rezervimi Nuk U Gjet</h2>
         <p class="lead">Linku që keni përdorur mund të jetë i pavlefshëm ose i skaduar. Ju lutemi kontrolloni email-in tuaj ose kontaktoni restorantin drejtpërdrejt.</p>
+
         <button class="btn btn-primary mt-4" (click)="goBack()">Kthehu</button>
       </div>
 
