@@ -1,66 +1,65 @@
-<div class="reservation-container with-background" [ngStyle]="{'background-image': backgroundImageUrl}">
+<div class="reservation-container" [ngStyle]="{'background-image': backgroundImageUrl}">
   <div class="card reservation-card">
     <div class="card-body">
-
-
       <div class="header-section text-center mb-4">
         <img *ngIf="reservationSettings && reservationSettings.config && reservationSettings.config.icon"
              [src]="getImageUrl(reservationSettings.config.icon)"
              alt="{{ businessName }} Icon"
              class="business-icon mb-3">
-        <h2 class="mb-1">Book a table at {{ businessName }}</h2>
+        <h5 class="text-primary">Rezervo një tavolinë te {{ businessName }}</h5>
       </div>
+
       <div class="stepper d-flex align-items-center justify-content-center mb-4">
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 1, 'completed': currentStep > 1 }">
-          <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 1, 'bg-success text-white': currentStep > 1, 'border border-primary': currentStep < 1}">
+          <div class="avatar-title rounded-circle bg-primary-subtle text-primary" [ngClass]="{'bg-primary text-white': currentStep === 1, 'bg-success text-white': currentStep > 1, 'border border-primary': currentStep < 1}">
             <i class="uil uil-check" *ngIf="currentStep > 1"></i>
             <span class="step-number" *ngIf="currentStep <= 1">1</span>
           </div>
-          <div class="step-label mt-2">{{ currentStep > 1 ? formattedGuests : 'Guests' }}</div>
+          <div class="step-label mt-2">{{ currentStep > 1 ? formattedGuests : 'Të ftuar' }}</div>
         </div>
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 2, 'completed': currentStep > 2 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 2, 'bg-success text-white': currentStep > 2, 'border border-primary': currentStep < 2}">
             <i class="uil uil-check" *ngIf="currentStep > 2"></i>
             <span class="step-number" *ngIf="currentStep <= 2">2</span>
           </div>
-          <div class="step-label mt-2">{{ currentStep > 2 ? formattedDate : 'Date' }}</div>
+          <div class="step-label mt-2">{{ currentStep > 2 ? formattedDate : 'Datë' }}</div>
         </div>
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 3, 'completed': currentStep > 3 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 3, 'bg-success text-white': currentStep > 3, 'border border-primary': currentStep < 3}">
             <i class="uil uil-check" *ngIf="currentStep > 3"></i>
             <span class="step-number" *ngIf="currentStep <= 3">3</span>
           </div>
-          <div class="step-label mt-2">{{ currentStep > 3 ? formattedTime : 'Time' }}</div>
+          <div class="step-label mt-2">{{ currentStep > 3 ? formattedTime : 'Orar' }}</div>
         </div>
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 4, 'completed': currentStep > 4 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 4, 'bg-success text-white': currentStep > 4, 'border border-primary': currentStep < 4}">
             <i class="uil uil-check" *ngIf="currentStep > 4"></i>
             <span class="step-number" *ngIf="currentStep <= 4">4</span>
           </div>
-          <div class="step-label mt-2">{{ currentStep > 4 ? selectedZoneLabel : 'Zone' }}</div>
+          <div class="step-label mt-2">{{ currentStep > 4 ? selectedZoneLabel : 'Zonë' }}</div>
         </div>
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 5 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 5, 'border border-primary': currentStep < 5}">
             <span class="step-number">5</span>
           </div>
-          <div class="step-label mt-2">Submit</div>
+          <div class="step-label mt-2">Dërgo</div>
         </div>
       </div>
 
       <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
         <div *ngIf="currentStep === 1">
-          <h4 class="text-center">How many people?</h4>
+          <h4 class="text-center">Sa persona?</h4>
           <div class="d-flex flex-wrap justify-content-center">
-            <button *ngFor="let num of [1,2,3,4,5,6,7,8]" type="button" class="btn btn-outline-primary rounded-circle m-2 people-btn" [ngClass]="{ 'btn-primary text-white': reservationForm.value.guests === num }" (click)="selectGuests(num)">{{ num }}</button>
+            <button *ngFor="let num of [1,2,3,4,5,6,7,8]" type="button" class="btn-sm btn-outline-light rounded-circle m-2 people-btn" [ngClass]="{ 'btn-primary text-white': reservationForm.value.guests === num }" (click)="selectGuests(num)">{{ num }}</button>
           </div>
-          <button type="button" class="btn btn-link d-block mx-auto" (click)="showMoreGuests = !showMoreGuests">▼ More</button>
+          <button type="button" class="btn btn-link d-block mx-auto" (click)="showMoreGuests = !showMoreGuests">▼ Më shumë</button>
           <div *ngIf="showMoreGuests" class="mt-2 text-center">
-            <input type="number" formControlName="guests" class="form-control w-50 mx-auto" min="9" placeholder="Enter number">
+            <input type="number" formControlName="guests" class="form-control w-50 mx-auto" min="9" placeholder="Shkruaj numrin">
           </div>
         </div>
 
         <div *ngIf="currentStep === 2">
-          <h4 class="text-center">Which day?</h4>
+          <h4 class="text-center">Cilën ditë?</h4>
           <div class="calendar-container">
             <app-modern-calendar
               [selectedDate]="getSelectedDate()"
@@ -68,16 +67,16 @@
               (dateSelected)="onDateSelected($event)">
             </app-modern-calendar>
             <div *ngIf="hasError('date', 'required')" class="text-danger small mt-2 text-center">
-              Date is required
+              Data është e detyrueshme
             </div>
           </div>
         </div>
 
         <div *ngIf="currentStep === 3" class="text-center">
-          <h4>Which time?</h4>
+          <h4>Cilin orar?</h4>
           <div *ngIf="isAvailabilityLoading" class="my-4">
             <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2">Checking available times...</p>
+            <p class="mt-2">Po kontrollohen oraret e disponueshme...</p>
           </div>
           <div *ngIf="!isAvailabilityLoading">
             <div *ngIf="dailyAvailability.length > 0; else noTimesAvailable" class="d-flex flex-wrap justify-content-center time-slots">
@@ -86,15 +85,15 @@
               </button>
             </div>
             <ng-template #noTimesAvailable>
-              <div class="alert alert-warning mt-3">No available slots for the selected date and party size.</div>
+              <div class="alert alert-warning mt-3">Nuk ka orare të disponueshme për datën dhe numrin e personave të zgjedhur.</div>
             </ng-template>
           </div>
         </div>
 
         <div *ngIf="currentStep === 4" class="text-center">
-          <h4>Which zone? (Optional)</h4>
+          <h4>Cila zonë? (Opsionale)</h4>
           <div class="d-flex flex-wrap justify-content-center">
-            <button type="button" class="btn btn-outline-primary m-2 zone-btn" [ngClass]="{ 'btn-primary text-white': reservationForm.value.areaId === null }" (click)="selectArea(null)" [disabled]="!isAreaAvailableForSelectedTime(null)">Any Available</button>
+            <button type="button" class="btn btn-outline-primary m-2 zone-btn" [ngClass]="{ 'btn-primary text-white': reservationForm.value.areaId === null }" (click)="selectArea(null)" [disabled]="!isAreaAvailableForSelectedTime(null)">Çdo zonë e disponueshme</button>
             <button *ngFor="let area of allBookableAreas" type="button" class="btn btn-outline-primary m-2 zone-btn" [ngClass]="{ 'btn-primary text-white': reservationForm.value.areaId === area.id }" (click)="selectArea(area.id)" [disabled]="!isAreaAvailableForSelectedTime(area.id)">
               <i class="uil" [ngClass]="area.icon || 'uil-map-marker'"></i> {{ area.areaName }}
             </button>
@@ -103,36 +102,40 @@
 
         <div *ngIf="currentStep === 5">
           <div class="form-group mb-3">
-            <label for="fullName">Full Name</label>
-            <input id="fullName" formControlName="fullName" class="form-control" placeholder="Enter full name">
-            <div *ngIf="hasError('fullName', 'required')" class="text-danger small mt-1">Full name is required</div>
+            <label for="fullName">Emri i plotë</label>
+            <input id="fullName" formControlName="fullName" class="form-control" placeholder="Shkruaj emrin e plotë">
+            <div *ngIf="hasError('fullName', 'required')" class="text-danger small mt-1">Emri i plotë është i detyrueshëm</div>
           </div>
           <div class="form-group mb-3">
             <label for="email">Email</label>
-            <input id="email" type="email" formControlName="email" class="form-control" placeholder="Enter email">
-            <div *ngIf="hasError('email', 'required')" class="text-danger small mt-1">Email is required</div>
+            <input id="email" type="email" formControlName="email" class="form-control" placeholder="Shkruaj email-in">
+            <div *ngIf="hasError('email', 'required')" class="text-danger small mt-1">Email-i është i detyrueshëm</div>
           </div>
           <div class="form-group mb-3">
-            <label for="phone">Phone</label>
-            <input id="phone" type="tel" formControlName="phone" class="form-control" placeholder="Enter phone number">
-            <div *ngIf="hasError('phone', 'required')" class="text-danger small mt-1">Phone is required</div>
+            <label for="phone">Telefoni</label>
+            <input id="phone" type="tel" formControlName="phone" class="form-control" placeholder="Shkruaj numrin e telefonit">
+            <div *ngIf="hasError('phone', 'required')" class="text-danger small mt-1">Numri i telefonit është i detyrueshëm</div>
           </div>
           <div class="form-group mb-3">
-            <label for="requests">Special Requests (Optional)</label>
-            <textarea id="requests" formControlName="requests" class="form-control" placeholder="Any special requests?"></textarea>
+            <label for="requests">Kërkesa të veçanta (Opsionale)</label>
+            <textarea id="requests" formControlName="requests" class="form-control" placeholder="Keni ndonjë kërkesë të veçantë?"></textarea>
           </div>
           <button type="submit" class="btn btn-primary w-100" [disabled]="isLoading || reservationForm.invalid">
-            {{ isLoading ? 'Submitting...' : 'Submit Reservation' }}
+            {{ isLoading ? 'Po dërgohet...' : 'Dërgo Rezervimin' }}
           </button>
         </div>
       </form>
 
       <div class="d-flex justify-content-between mt-4">
-        <button *ngIf="currentStep > 1" type="button" class="btn btn-secondary" (click)="prevStep()">Back</button>
-        <button *ngIf="currentStep < 5" type="button" class="btn btn-primary ms-auto" [disabled]="!canProceed()" (click)="nextStep()">Next</button>
+        <button *ngIf="currentStep > 1" type="button" class="btn btn-secondary w-sm waves-effect waves-light" (click)="prevStep()">Kthehu</button>
+        <button *ngIf="currentStep < 5" type="button" class="btn btn-primary w-sm waves-effect waves-light ms-auto" [disabled]="!canProceed()" (click)="nextStep()">Vazhdo</button>
       </div>
 
       <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+    </div>
+
+    <div class="mt-5 text-center">
+      <p>© <script>document.write(new Date().getFullYear())</script>2025 E-Table. Part of <a href="https://www.intermedia.al/" target="_blank"> InterMedia SHPK</a></p>
     </div>
   </div>
 </div>

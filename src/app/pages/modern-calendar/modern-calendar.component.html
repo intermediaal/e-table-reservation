@@ -1,1 +1,33 @@
-<p>modern-calendar works!</p>
+<div class="modern-calendar">
+  <div class="calendar-header">
+    <button type="button" class="nav-button" (click)="previousMonth()" [disabled]="!canNavigateToPrevious()">
+      <i class="uil uil-angle-left"></i>
+    </button>
+    <h3 class="month-year">{{ currentMonthYear }}</h3>
+    <button type="button" class="nav-button" (click)="nextMonth()">
+      <i class="uil uil-angle-right"></i>
+    </button>
+  </div>
+
+  <div class="calendar-weekdays">
+    <div class="weekday" *ngFor="let day of weekdays">{{ day }}</div>
+  </div>
+
+  <div class="calendar-grid">
+    <button
+      type="button"
+      *ngFor="let day of calendarDays"
+      class="calendar-day"
+      [ngClass]="{
+            'other-month': !day.isCurrentMonth,
+            'today': day.isToday,
+            'selected': day.isSelected,
+            'past': day.isPast
+          }"
+      [disabled]="day.isPast || !day.isCurrentMonth"
+      (click)="selectDate(day)"
+    >
+      {{ day.day }}
+    </button>
+  </div>
+</div>
