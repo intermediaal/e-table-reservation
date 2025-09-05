@@ -1,8 +1,15 @@
-<div class="reservation-container">
+<div class="reservation-container with-background" [ngStyle]="{'background-image': backgroundImageUrl}">
   <div class="card reservation-card">
     <div class="card-body">
-      <h2 class="text-center mb-4">Book a table at {{ businessName }}</h2>
 
+
+      <div class="header-section text-center mb-4">
+        <img *ngIf="reservationSettings && reservationSettings.config && reservationSettings.config.icon"
+             [src]="getImageUrl(reservationSettings.config.icon)"
+             alt="{{ businessName }} Icon"
+             class="business-icon mb-3">
+        <h2 class="mb-1">Book a table at {{ businessName }}</h2>
+      </div>
       <div class="stepper d-flex align-items-center justify-content-center mb-4">
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 1, 'completed': currentStep > 1 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 1, 'bg-success text-white': currentStep > 1, 'border border-primary': currentStep < 1}">
