@@ -11,29 +11,50 @@
 
       <div class="stepper d-flex align-items-center justify-content-center mb-4">
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 1, 'completed': currentStep > 1 }">
-          <div class="avatar-title rounded-circle bg-primary-subtle text-primary" [ngClass]="{'bg-primary text-white': currentStep === 1, 'bg-success text-white': currentStep > 1, 'border border-primary': currentStep < 1}">
-            <i class="uil uil-check" *ngIf="currentStep > 1"></i>
+          <div class="avatar-title rounded-circle font-size-20"
+               [ngClass]="{
+       'bg-primary text-white': currentStep === 1,
+       'bg-success text-white': currentStep > 1,
+       'border border-primary': currentStep < 1
+     }">
+
+            <img *ngIf="currentStep > 1"
+                 src="assets/images/confirmation.png"
+                 alt="Step Icon"
+                 class="step-icon" />
+
+            <!-- Nëse step është aktiv ose nuk ka filluar ende, shfaq numrin -->
             <span class="step-number" *ngIf="currentStep <= 1">1</span>
           </div>
+
           <div class="step-label mt-2">{{ currentStep > 1 ? formattedGuests : 'Të ftuar' }}</div>
         </div>
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 2, 'completed': currentStep > 2 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 2, 'bg-success text-white': currentStep > 2, 'border border-primary': currentStep < 2}">
-            <i class="uil uil-check" *ngIf="currentStep > 2"></i>
+            <img *ngIf="currentStep > 2"
+                 src="assets/images/confirmation.png"
+                 alt="Step Icon"
+                 class="step-icon" />
             <span class="step-number" *ngIf="currentStep <= 2">2</span>
           </div>
           <div class="step-label mt-2">{{ currentStep > 2 ? formattedDate : 'Datë' }}</div>
         </div>
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 3, 'completed': currentStep > 3 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 3, 'bg-success text-white': currentStep > 3, 'border border-primary': currentStep < 3}">
-            <i class="uil uil-check" *ngIf="currentStep > 3"></i>
+            <img *ngIf="currentStep > 3"
+                 src="assets/images/confirmation.png"
+                 alt="Step Icon"
+                 class="step-icon" />
             <span class="step-number" *ngIf="currentStep <= 3">3</span>
           </div>
           <div class="step-label mt-2">{{ currentStep > 3 ? formattedTime : 'Orar' }}</div>
         </div>
         <div class="step text-center" [ngClass]="{ 'active': currentStep === 4, 'completed': currentStep > 4 }">
           <div class="avatar-title rounded-circle font-size-20" [ngClass]="{'bg-primary text-white': currentStep === 4, 'bg-success text-white': currentStep > 4, 'border border-primary': currentStep < 4}">
-            <i class="uil uil-check" *ngIf="currentStep > 4"></i>
+            <img *ngIf="currentStep > 4"
+                 src="assets/images/confirmation.png"
+                 alt="Step Icon"
+                 class="step-icon" />
             <span class="step-number" *ngIf="currentStep <= 4">4</span>
           </div>
           <div class="step-label mt-2">{{ currentStep > 4 ? selectedZoneLabel : 'Zonë' }}</div>

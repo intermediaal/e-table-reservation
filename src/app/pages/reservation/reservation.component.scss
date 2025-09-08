@@ -119,6 +119,18 @@
       background-color: #10b981;
     }
   }
+  .booking-wizard-lists ul li.active.activated span::after {
+    content: "\e900"; /* kodi i ikonës */
+    font-family: "BookingIcons"; /* fonti yt */
+    font-size: 20px;
+    color: #fff;
+  }
+
+  .step-icon {
+    width: 24px;
+    height: 24px;
+  }
+
 
   // Alternative approach - if the above doesn't work, try this:
   .step:not(:last-child)::after {

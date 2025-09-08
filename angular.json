@@ -90,10 +90,12 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss",
-              "node_modules/@iconscout/unicons/css/line.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/bootstrap-icons/font/bootstrap-icons.css"
+              "src/assets/css/dataTables.bootstrap4.min.css",
+              "src/assets/css/responsive.bootstrap4.min.css",
+              "src/bootstrap/css/icons.min.css",
+              "src/bootstrap/css/bootstrap.min.css",
+              "src/assets/css/app.min.css",
+              "src/styles.scss"
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
