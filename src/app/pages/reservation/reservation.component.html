@@ -71,7 +71,7 @@
         <div *ngIf="currentStep === 1">
           <h4 class="text-center">Sa persona?</h4>
           <div class="d-flex flex-wrap justify-content-center">
-            <button *ngFor="let num of [1,2,3,4,5,6,7,8]" type="button" class="btn-sm btn-outline-light rounded-circle m-2 people-btn" [ngClass]="{ 'btn-primary text-white': reservationForm.value.guests === num }" (click)="selectGuests(num)">{{ num }}</button>
+            <button *ngFor="let num of [1,2,3,4,5,6,7,8]" type="button" class="btn btn-outline-primary m-2 time-btn" [ngClass]="{ 'btn-primary text-white': reservationForm.value.guests === num }" (click)="selectGuests(num)">{{ num }}</button>
           </div>
           <button type="button" class="btn btn-link d-block mx-auto" (click)="showMoreGuests = !showMoreGuests">▼ Më shumë</button>
           <div *ngIf="showMoreGuests" class="mt-2 text-center">
@@ -122,29 +122,64 @@
         </div>
 
         <div *ngIf="currentStep === 5">
-          <div class="form-group mb-3">
-            <label for="fullName">Emri i plotë</label>
-            <input id="fullName" formControlName="fullName" class="form-control" placeholder="Shkruaj emrin e plotë">
-            <div *ngIf="hasError('fullName', 'required')" class="text-danger small mt-1">Emri i plotë është i detyrueshëm</div>
+          <h5 class="text-center mb-4">Të dhënat personale</h5>
+
+          <div class="mb-3">
+            <label class="form-label" for="fullName">Emri i plotë</label>
+            <input id="fullName"
+                   type="text"
+                   formControlName="fullName"
+                   class="form-control"
+                   placeholder="Shkruaj emrin e plotë">
+            <div *ngIf="hasError('fullName', 'required')" class="text-danger small mt-1">
+              Emri i plotë është i detyrueshëm
+            </div>
           </div>
-          <div class="form-group mb-3">
-            <label for="email">Email</label>
-            <input id="email" type="email" formControlName="email" class="form-control" placeholder="Shkruaj email-in">
-            <div *ngIf="hasError('email', 'required')" class="text-danger small mt-1">Email-i është i detyrueshëm</div>
+
+          <div class="mb-3">
+            <label class="form-label" for="email">Email</label>
+            <input id="email"
+                   type="email"
+                   formControlName="email"
+                   class="form-control"
+                   placeholder="Shkruaj email-in">
+            <div *ngIf="hasError('email', 'required')" class="text-danger small mt-1">
+              Email-i është i detyrueshëm
+            </div>
           </div>
-          <div class="form-group mb-3">
-            <label for="phone">Telefoni</label>
-            <input id="phone" type="tel" formControlName="phone" class="form-control" placeholder="Shkruaj numrin e telefonit">
-            <div *ngIf="hasError('phone', 'required')" class="text-danger small mt-1">Numri i telefonit është i detyrueshëm</div>
+
+          <div class="mb-3">
+            <label class="form-label" for="phone">Telefoni</label>
+            <input id="phone"
+                   type="tel"
+                   formControlName="phone"
+                   class="form-control"
+                   placeholder="Shkruaj numrin e telefonit">
+            <div *ngIf="hasError('phone', 'required')" class="text-danger small mt-1">
+              Numri i telefonit është i detyrueshëm
+            </div>
           </div>
-          <div class="form-group mb-3">
-            <label for="requests">Kërkesa të veçanta (Opsionale)</label>
-            <textarea id="requests" formControlName="requests" class="form-control" placeholder="Keni ndonjë kërkesë të veçantë?"></textarea>
+
+          <div class="mb-3">
+            <label class="form-label" for="requests">Kërkesa të veçanta
+              <span class="text-muted small">(Opsionale)</span>
+            </label>
+            <textarea id="requests"
+                      formControlName="requests"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Keni ndonjë kërkesë të veçantë?"></textarea>
           </div>
-          <button type="submit" class="btn btn-primary w-100" [disabled]="isLoading || reservationForm.invalid">
-            {{ isLoading ? 'Po dërgohet...' : 'Dërgo Rezervimin' }}
-          </button>
+
+          <div class="mt-4">
+            <button type="submit"
+                    class="btn btn-primary w-100"
+                    [disabled]="isLoading || reservationForm.invalid">
+              {{ isLoading ? 'Po dërgohet...' : 'Dërgo Rezervimin' }}
+            </button>
+          </div>
         </div>
+
       </form>
 
       <div class="d-flex justify-content-between mt-4">

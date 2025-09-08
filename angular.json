@@ -92,6 +92,7 @@
             "styles": [
               "src/assets/css/dataTables.bootstrap4.min.css",
               "src/assets/css/responsive.bootstrap4.min.css",
+              "node_modules/toastify-js/src/toastify.css",
               "src/bootstrap/css/icons.min.css",
               "src/bootstrap/css/bootstrap.min.css",
               "src/assets/css/app.min.css",

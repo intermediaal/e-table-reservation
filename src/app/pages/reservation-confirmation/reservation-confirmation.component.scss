@@ -11,20 +11,28 @@
 }
 
 .confirmation-card {
-  width: 500px;
+  width: 580px;
   border: none;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  padding: 2rem;
-  text-align: center;
+  padding: 1rem;
+
 }
 
 .confirmation-icon {
   font-size: 4rem;
   color: #28a745;
 }
-
+.vr {
+  display: inline-block;
+  -ms-flex-item-align: stretch;
+  align-self: stretch;
+  width: 1px;
+  min-height: 1em;
+  background-color: currentcolor;
+  opacity: .25;
+}
 .confirmation-details {
   margin-top: 1.5rem;
   text-align: left;
@@ -39,16 +47,4 @@
   }
 }
 
-.btn-primary {
-  background-color: #003087;
-  border-color: #003087;
-  border-radius: 25px;
-  padding: 0.6rem 1.5rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
 
-.btn-primary:hover {
-  background-color: #00235c;
-  border-color: #00235c;
-}

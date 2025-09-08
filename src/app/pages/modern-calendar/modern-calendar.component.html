@@ -1,11 +1,12 @@
 <div class="modern-calendar">
   <div class="calendar-header">
     <button type="button" class="nav-button" (click)="previousMonth()" [disabled]="!canNavigateToPrevious()">
-      <i class="uil uil-angle-left"></i>
+      <i class="bi bi-arrow-left"></i>
+
     </button>
     <h3 class="month-year">{{ currentMonthYear }}</h3>
     <button type="button" class="nav-button" (click)="nextMonth()">
-      <i class="uil uil-angle-right"></i>
+      <i class="bi bi-arrow-right"></i>
     </button>
   </div>
 
