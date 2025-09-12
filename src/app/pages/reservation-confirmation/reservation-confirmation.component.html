@@ -97,8 +97,8 @@
     </div>
   </div>
 
-  <!-- Bootstrap Modal for Confirmation -->
-  <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelModalLabel" aria-hidden="true" *ngIf="showConfirmModal">
+  <div class="modal-backdrop fade show" *ngIf="showConfirmModal"></div>
+  <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelModalLabel" aria-hidden="true" [class.show]="showConfirmModal" [style.display]="showConfirmModal ? 'block' : 'none'">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
