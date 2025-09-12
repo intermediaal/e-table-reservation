@@ -20,6 +20,7 @@ export class ReservationConfirmationComponent implements OnInit {
   cancellationMessage: string | null = null;
   allBookableAreas: Area[] = [];
   businessSlug: string | null = 'intermedia';
+  showConfirmModal: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -106,5 +107,13 @@ export class ReservationConfirmationComponent implements OnInit {
     if (areaId === null || areaId === undefined) return 'Any Available Zone';
     const area = this.allBookableAreas.find(a => a.id === areaId);
     return area ? area.areaName : 'Loading...';
+  }
+
+  closeModal() {
+
+  }
+
+  confirmCancellation() {
+
   }
 }
