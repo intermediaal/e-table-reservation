@@ -1,0 +1,10 @@
+.btn-soft-primary {
+  background-color: rgba(91, 115, 232, .25);
+  border-color: rgba(91, 115, 232, .25);
+  color: #5b73e8;
+}
+.btn:hover {
+  color: var(--bs-btn-hover-color);
+  background-color: var(--bs-btn-hover-bg);
+  border-color: var(--bs-btn-hover-border-color);
+}
