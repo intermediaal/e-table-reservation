@@ -8,6 +8,7 @@ import { ReservationService, ReservationRequest, Area, AvailableTimeSlot } from 
 import { ReservationDataService } from '../../services/reservation-data.service';
 import {ModernCalendarComponent} from "../modern-calendar/modern-calendar.component";
 import {ReservationSettings, ReservationSettingsService} from "../../services/reservation-settings.service";
+import { Title } from '@angular/platform-browser';
 
 
 @Component({
@@ -54,7 +55,8 @@ export class ReservationComponent implements OnInit {
     private reservationSettingsService: ReservationSettingsService,
     private route: ActivatedRoute,
     private router: Router,
-    private reservationDataService: ReservationDataService
+    private reservationDataService: ReservationDataService,
+    private titleService: Title
   ) {
     const today = new Date();
     this.minDate = today.toISOString().split('T')[0];
@@ -79,12 +81,17 @@ export class ReservationComponent implements OnInit {
         this.businessSlug = slug;
         this.businessName = this.prettifySlug(slug);
 
+        // Set the document title with the business name
+        this.titleService.setTitle(`${this.businessName} - Reservation Form`);
+
         this.loadBusinessSettings();
         this.loadAllBookableAreas();
         this.loadBusinessBookingInfo();
         this.listenForAvailabilityChanges();
       } else {
         this.errorMessage = "Business not specified in the URL.";
+        // Optionally set a default title if no business slug is provided
+        this.titleService.setTitle('Reservation Form');
       }
     });
   }
@@ -129,13 +136,13 @@ export class ReservationComponent implements OnInit {
     if (!this.businessSlug) return;
     this.reservationSettingsService.getSettings(this.businessSlug).subscribe(settings => {
       this.reservationSettings = settings;
-
       if (!settings.config.isActive) {
         this.errorMessage = "We are sorry, but this restaurant is not currently accepting online reservations.";
         return;
       }
-
       this.fetchAvailability();
+    }, error => {
+      this.errorMessage = "Business settings could not be loaded. Please check the business slug.";
     });
   }
 
@@ -203,8 +210,11 @@ export class ReservationComponent implements OnInit {
     if (!this.businessSlug) return;
     this.reservationService.getAvailableAreas(this.businessSlug).subscribe(areas => {
       this.allBookableAreas = areas;
+    }, error => {
+      this.errorMessage = "Available areas could not be loaded.";
     });
   }
+
 
   fetchAvailability(): void {
     const guests = this.reservationForm.get('guests')?.value;
@@ -359,13 +369,15 @@ export class ReservationComponent implements OnInit {
 
     this.reservationService.createReservation(payload).subscribe({
       next: (response) => {
+        console.log('Response from server:', response);
         this.isLoading = false;
         const token = response.viewToken;
-        this.router.navigate(['/view-reservation', token]);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error.error?.message || error.error || 'An error occurred. Please try again.';
+        if (token && this.businessSlug) {
+          console.log('Navigating to:', ['/view-reservation', token, { businessSlug: this.businessSlug }]);
+          this.router.navigate(['/view-reservation', token], { queryParams: { businessSlug: this.businessSlug } });
+        } else {
+          this.errorMessage = 'No view token or business slug received.';
+        }
       }
     });
   }

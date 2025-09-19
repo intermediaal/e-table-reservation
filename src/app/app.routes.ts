@@ -8,10 +8,7 @@ export const routes: Routes = [
     path: 'reservation/:businessSlug',
     component: ReservationComponent
   },
-  {
-    path: 'view-reservation/:token',
-    component: ReservationConfirmationComponent
-  },
+  { path: 'view-reservation/:token', component: ReservationConfirmationComponent },
   {
     path: '**',
     component: NotFoundComponent

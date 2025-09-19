@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReservationDataService } from '../../services/reservation-data.service';
 import { Area, ReservationDetails, ReservationRequest, ReservationService } from '../../services/reservation.service';
+import { ReservationSettingsService, ReservationSettings } from "../../services/reservation-settings.service";
 
 @Component({
   selector: 'app-reservation-confirmation',
@@ -20,42 +21,46 @@ export class ReservationConfirmationComponent implements OnInit {
   isLoading = true;
   cancellationMessage: string | null = null;
   allBookableAreas: Area[] = [];
-  businessSlug: string | null = 'intermedia';
+  businessSlug: string | null = null;
   showConfirmModal = false;
+  reservationSettings: ReservationSettings | null = null;
+  private readonly baseUrl = 'http://localhost:3030';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private reservationDataService: ReservationDataService,
-    private reservationService: ReservationService
+    private reservationService: ReservationService,
+    private reservationSettingsService: ReservationSettingsService
   ) {}
 
   ngOnInit(): void {
     const token = this.route.snapshot.paramMap.get('token');
+    this.businessSlug = this.route.snapshot.queryParamMap.get('businessSlug'); // Merr nga query params
+
+    if (token) {
+      this.reservationDetails.viewToken = token;
+      this.loadReservationByToken(token);
+    } else {
+      const id = this.route.snapshot.queryParamMap.get('id');
+      if (id) {
+        const tempData = this.reservationDataService.getReservationData();
+        this.reservationDetails = { ...tempData, id: +id };
+        const maxGuests = 8;
+        this.reservationDetails.status = this.reservationDetails.guests! > maxGuests ? 'PENDING_APPROVAL' : 'CONFIRMED';
+        this.isLoading = false;
+      } else {
+        this.reservationDetails.status = 'NOT_FOUND';
+        this.isLoading = false;
+      }
+    }
 
     if (this.businessSlug) {
-      this.reservationService.getAvailableAreas(this.businessSlug).subscribe(areas => {
-        this.allBookableAreas = areas;
-
-        if (token) {
-          this.reservationDetails.viewToken = token;
-          this.loadReservationByToken(token);
-        } else {
-          const id = this.route.snapshot.queryParamMap.get('id');
-          if (id) {
-            const tempData = this.reservationDataService.getReservationData();
-            this.reservationDetails = { ...tempData, id: +id };
-            const maxGuests = 8;
-            this.reservationDetails.status = this.reservationDetails.guests! > maxGuests ? 'PENDING_APPROVAL' : 'CONFIRMED';
-            this.isLoading = false;
-          } else {
-            this.reservationDetails.status = 'NOT_FOUND';
-            this.isLoading = false;
-          }
-        }
+      this.reservationSettingsService.getSettings(this.businessSlug).subscribe(settings => {
+        this.reservationSettings = settings;
+      }, error => {
+        console.error('Error loading reservation settings:', error);
       });
-    } else {
-      this.reservationDetails.status = 'NOT_FOUND';
-      this.isLoading = false;
     }
   }
 
@@ -66,8 +71,10 @@ export class ReservationConfirmationComponent implements OnInit {
       next: (data) => {
         this.reservationDetails = data;
         this.isLoading = false;
+        console.log('Reservation details loaded:', data);
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error loading reservation:', error);
         this.reservationDetails.status = "NOT_FOUND";
         this.isLoading = false;
       }
@@ -80,7 +87,8 @@ export class ReservationConfirmationComponent implements OnInit {
 
   goBack(): void {
     this.reservationDataService.clearReservationData();
-    this.router.navigate(['/reservation', this.businessSlug || 'intermedia']);
+    const slug = this.businessSlug || 'default'; // Përdor një vlerë default nëse mungon
+    this.router.navigate(['/reservation', this.businessSlug]);
   }
 
 
@@ -107,6 +115,18 @@ export class ReservationConfirmationComponent implements OnInit {
   get formattedGuests(): string {
     const guests = this.reservationDetails?.guests;
     return guests ? `${guests} ${guests > 1 ? 'persona' : 'person'}` : 'N/A';
+  }
+  get backgroundImageUrl(): string | null {
+    if (this.reservationSettings && this.reservationSettings.config.backgroundPhoto) {
+      const filename = this.reservationSettings.config.backgroundPhoto;
+      return `url(${this.baseUrl}/${filename.replace(/\\/g, '/')})`;
+    }
+    return null;
+  }
+
+  getImageUrl(filename: string): string {
+    if (!filename) return '';
+    return `${this.baseUrl}/${filename.replace(/\\/g, '/')}`;
   }
 
   get selectedZone(): string {
