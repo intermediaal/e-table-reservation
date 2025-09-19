@@ -1,5 +1,3 @@
-// src/app/pages/reservation-confirmation/reservation-confirmation.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,7 +15,6 @@ import { ReservationSettingsService, ReservationSettings } from "../../services/
 })
 export class ReservationConfirmationComponent implements OnInit {
   reservationDetails: Partial<ReservationDetails & ReservationRequest> = {};
-
   isLoading = true;
   cancellationMessage: string | null = null;
   allBookableAreas: Area[] = [];
@@ -36,7 +33,7 @@ export class ReservationConfirmationComponent implements OnInit {
 
   ngOnInit(): void {
     const token = this.route.snapshot.paramMap.get('token');
-    this.businessSlug = this.route.snapshot.queryParamMap.get('businessSlug'); // Merr nga query params
+    this.businessSlug = this.route.snapshot.queryParamMap.get('businessSlug');
 
     if (token) {
       this.reservationDetails.viewToken = token;
@@ -56,14 +53,28 @@ export class ReservationConfirmationComponent implements OnInit {
     }
 
     if (this.businessSlug) {
+      // Load reservation settings
       this.reservationSettingsService.getSettings(this.businessSlug).subscribe(settings => {
         this.reservationSettings = settings;
       }, error => {
         console.error('Error loading reservation settings:', error);
       });
+
+      // Load all bookable areas
+      this.loadAllBookableAreas();
     }
   }
 
+  loadAllBookableAreas(): void {
+    if (!this.businessSlug) return;
+    this.reservationService.getAvailableAreas(this.businessSlug).subscribe(areas => {
+      this.allBookableAreas = areas;
+    }, error => {
+      console.error('Error loading available areas:', error);
+      // Optionally set a fallback value for selectedZone if areas can't be loaded
+      this.allBookableAreas = [];
+    });
+  }
 
   loadReservationByToken(token: string): void {
     this.cancellationMessage = null;
@@ -87,10 +98,9 @@ export class ReservationConfirmationComponent implements OnInit {
 
   goBack(): void {
     this.reservationDataService.clearReservationData();
-    const slug = this.businessSlug || 'default'; // Përdor një vlerë default nëse mungon
+    const slug = this.businessSlug || 'default';
     this.router.navigate(['/reservation', this.businessSlug]);
   }
-
 
   get status(): string | null { return this.reservationDetails?.status ?? null; }
   get reservationId(): number | null { return this.reservationDetails?.id ?? null; }
@@ -116,6 +126,7 @@ export class ReservationConfirmationComponent implements OnInit {
     const guests = this.reservationDetails?.guests;
     return guests ? `${guests} ${guests > 1 ? 'persona' : 'person'}` : 'N/A';
   }
+
   get backgroundImageUrl(): string | null {
     if (this.reservationSettings && this.reservationSettings.config.backgroundPhoto) {
       const filename = this.reservationSettings.config.backgroundPhoto;
